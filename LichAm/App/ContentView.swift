@@ -2,29 +2,54 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var viewModel: CalendarViewModel
+    @StateObject private var calendarIntegration = CalendarIntegrationManager()
     @State private var showAuspiciousHours = false
     @State private var showHolidaysList = false
+    @State private var selectedHoliday: VietnameseHoliday?
+    @State private var showCalendarExport = false
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Header with lunar date
-                    HeaderView()
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 24) {
+                    // Modern Header with lunar date
+                    ModernHeaderView()
+                        .transition(.scale.combined(with: .opacity))
                     
-                    // Calendar view
-                    CalendarGridView()
+                    // Smooth Scrolling Calendar
+                    ModernCalendarView()
+                        .transition(.move(edge: .top).combined(with: .opacity))
                     
-                    // Today's information
-                    TodayInformationView()
+                    // Today's Information Card
+                    ModernTodayInfoCard()
+                        .transition(.move(edge: .leading).combined(with: .opacity))
                     
-                    // Holidays section
+                    
+                    // Holidays Section
                     if !viewModel.todayHolidays.isEmpty {
-                        HolidaysSectionView()
+                        ModernHolidaysSectionView(
+                            selectedHoliday: $selectedHoliday,
+                            showCalendarExport: $showCalendarExport
+                        )
+                        .transition(.scale.combined(with: .opacity))
                     }
+                    
+                    Spacer(minLength: 40)
                 }
-                .padding()
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
+            .background(
+                LinearGradient(
+                    colors: [
+                        Color(.systemBackground),
+                        Color(.systemBackground).opacity(0.95)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            )
             .navigationTitle("Lịch Âm")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -32,8 +57,12 @@ struct ContentView: View {
                     Button(action: {
                         viewModel.goToToday()
                     }) {
-                        Image(systemName: "calendar.circle")
-                            .font(.title3)
+                        HStack(spacing: 4) {
+                            Image(systemName: "calendar.circle.fill")
+                            Text("Hôm nay")
+                                .font(.subheadline)
+                        }
+                        .foregroundColor(.blue)
                     }
                 }
                 
@@ -41,271 +70,253 @@ struct ContentView: View {
                     Button(action: {
                         viewModel.showSettings = true
                     }) {
-                        Image(systemName: "gearshape")
-                            .font(.title3)
+                        Image(systemName: "gearshape.fill")
+                            .foregroundColor(.blue)
                     }
                 }
             }
             .sheet(isPresented: $viewModel.showSettings) {
                 SettingsView()
+                    .environmentObject(calendarIntegration)
             }
         }
+        .navigationViewStyle(.stack)
     }
 }
 
-struct HeaderView: View {
+// MARK: - Modern Header View
+
+struct ModernHeaderView: View {
     @EnvironmentObject var viewModel: CalendarViewModel
     
     var body: some View {
-        VStack(spacing: 12) {
-            // Solar date
+        VStack(spacing: 16) {
+            // Solar date with animation
             Text(viewModel.selectedDate, style: .date)
-                .font(.title2)
-                .fontWeight(.semibold)
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundColor(.primary)
+                .id(viewModel.selectedDate)
+                .transition(.asymmetric(
+                    insertion: .scale.combined(with: .opacity),
+                    removal: .scale.combined(with: .opacity)
+                ))
             
-            // Lunar date
-            VStack(spacing: 4) {
-                Text("Ngày \(viewModel.lunarDate.displayString)")
-                    .font(.headline)
-                    .foregroundColor(.red)
-                
-                // Zodiac year
+            // Lunar date card with gradient
+            VStack(spacing: 12) {
                 HStack {
-                    Text("Năm \(viewModel.canChi)")
-                        .font(.subheadline)
+                    Image(systemName: "moon.stars.fill")
+                        .font(.title2)
+                        .foregroundColor(.yellow)
                     
-                    Text("•")
-                        .font(.caption)
-                    
-                    Text("\(viewModel.zodiacAnimal) (\(viewModel.zodiacAnimalEnglish))")
-                        .font(.subheadline)
+                    Text("Ngày \(viewModel.lunarDate.displayString)")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
                 }
-                .foregroundColor(.secondary)
+                
+                Divider()
+                    .background(Color.white.opacity(0.3))
+                
+                HStack(spacing: 20) {
+                    VStack(spacing: 4) {
+                        Text("Năm")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.8))
+                        Text(viewModel.canChi)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                    }
+                    
+                    Rectangle()
+                        .fill(Color.white.opacity(0.3))
+                        .frame(width: 1, height: 30)
+                    
+                    VStack(spacing: 4) {
+                        Text("Con giáp")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.8))
+                        Text("\(viewModel.zodiacAnimal)")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                    }
+                    
+                    Rectangle()
+                        .fill(Color.white.opacity(0.3))
+                        .frame(width: 1, height: 30)
+                    
+                    VStack(spacing: 4) {
+                        Text("English")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.8))
+                        Text(viewModel.zodiacAnimalEnglish)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                    }
+                }
             }
-            .padding()
+            .padding(20)
             .frame(maxWidth: .infinity)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.red.opacity(0.1))
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.red.opacity(0.8), Color.orange.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .shadow(color: .red.opacity(0.3), radius: 10, x: 0, y: 5)
             )
         }
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.selectedDate)
     }
 }
 
-struct CalendarGridView: View {
+// MARK: - Modern Calendar View with Smooth Scrolling
+
+struct ModernCalendarView: View {
     @EnvironmentObject var viewModel: CalendarViewModel
-
-    let weekdays = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
-    let columns = Array(repeating: GridItem(.flexible()), count: 7)
-
-    // We keep a finite sliding window of months to page through (centered on currentMonth)
+    @State private var scrollOffset: CGFloat = 0
     @State private var months: [Date] = []
-    @State private var selectedPage: Int = 0
-    private let pageRange = -12...12 // 25 pages (adjustable)
-
+    @State private var currentMonthIndex: Int = 12
+    
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 7)
+    let weekdays = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
+    
     var body: some View {
         VStack(spacing: 0) {
-            // Month navigation (kept for quick taps)
+            // Month navigation header
             HStack {
                 Button(action: {
-                    goToPage(offset: -1)
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        viewModel.previousMonth()
+                    }
                 }) {
-                    Image(systemName: "chevron.left")
-                        .font(.title3)
-                        .foregroundColor(.primary)
+                    Image(systemName: "chevron.left.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.blue)
                 }
-
+                
                 Spacer()
-
+                
                 Text(viewModel.currentMonth, formatter: monthYearFormatter)
-                    .font(.headline)
-
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .id(viewModel.currentMonth)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal: .move(edge: .leading).combined(with: .opacity)
+                    ))
+                
                 Spacer()
-
+                
                 Button(action: {
-                    goToPage(offset: 1)
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        viewModel.nextMonth()
+                    }
                 }) {
-                    Image(systemName: "chevron.right")
-                        .font(.title3)
-                        .foregroundColor(.primary)
+                    Image(systemName: "chevron.right.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.blue)
                 }
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-
-            Divider()
-
+            .padding(.horizontal, 8)
+            .padding(.vertical, 16)
+            
             // Weekday headers
             LazyVGrid(columns: columns, spacing: 8) {
                 ForEach(weekdays, id: \.self) { weekday in
                     Text(weekday)
-                        .font(.caption)
-                        .fontWeight(.semibold)
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity)
                 }
             }
-            .padding(.vertical, 8)
-
-            // Paging TabView for months
-            TabView(selection: $selectedPage) {
-                ForEach(months.indices, id: \.self) { idx in
-                    // Each page is a month grid
-                    let month = months[idx]
-                    LazyVGrid(columns: columns, spacing: 8) {
-                        ForEach(getDaysInMonth(for: month), id: \.self) { date in
-                            CalendarDayCell(date: date)
-                                .contentShape(Rectangle()) // ensure full cell is tappable
-                        }
-                    }
-                    .padding(.horizontal, 4)
-                    .tag(idx)
-                    .onAppear {
-                        // nothing specific
-                    }
+            .padding(.bottom, 12)
+            
+            // Calendar grid
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(viewModel.getDaysInMonth(), id: \.self) { date in
+                    ModernCalendarDayCell(date: date)
+                        .transition(.scale.combined(with: .opacity))
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(minHeight: 350) // keep enough height for grid
-            .onChange(of: selectedPage) { newIndex in
-                // When user swipes to a page, update viewModel.currentMonth
-                guard months.indices.contains(newIndex) else { return }
-                withAnimation {
-                    viewModel.currentMonth = months[newIndex]
-                }
-            }
-            .onReceive(viewModel.$currentMonth) { newMonth in
-                // Recompute months array centered on the new currentMonth and update selectedPage
-                rebuildMonths(center: newMonth)
-            }
-            .onAppear {
-                // build initial pages
-                rebuildMonths(center: viewModel.currentMonth)
-            }
+            .padding(.horizontal, 4)
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.currentMonth)
         }
-        .padding()
+        .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.systemBackground))
-                .shadow(color: .black.opacity(0.05), radius: 5)
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color(.secondarySystemBackground))
+                .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 4)
         )
     }
-
-    // MARK: - Helpers
-
+    
     private var monthYearFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
+        formatter.locale = Locale(identifier: "vi_VN")
         return formatter
-    }
-
-    private func rebuildMonths(center: Date) {
-        var newMonths: [Date] = []
-        let calendar = Calendar.current
-        let centerStart = calendar.date(from: calendar.dateComponents([.year, .month], from: center)) ?? center
-
-        for offset in pageRange {
-            if let m = calendar.date(byAdding: .month, value: offset, to: centerStart) {
-                newMonths.append(m)
-            }
-        }
-
-        DispatchQueue.main.async {
-            self.months = newMonths
-            let centerIdx = -pageRange.lowerBound // fixed line ✅
-            if newMonths.indices.contains(centerIdx) {
-                self.selectedPage = centerIdx
-            } else if let idx = newMonths.firstIndex(where: { Calendar.current.isDate($0, equalTo: centerStart, toGranularity: .month) }) {
-                self.selectedPage = idx
-            } else {
-                self.selectedPage = 0
-            }
-        }
-    }
-
-
-    private func goToPage(offset: Int) {
-        let target = selectedPage + offset
-        guard months.indices.contains(target) else {
-            // if out of range, update center month and rebuild then move
-            if offset < 0 {
-                viewModel.previousMonth()
-            } else {
-                viewModel.nextMonth()
-            }
-            return
-        }
-        selectedPage = target
-        // selectedPage change handler (onChange) will update viewModel.currentMonth
-    }
-
-    // Returns array of Date? for the month's grid (leading nils for firstWeekday - 1)
-    private func getDaysInMonth(for monthDate: Date) -> [Date?] {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year, .month], from: monthDate)
-
-        guard let firstDayOfMonth = calendar.date(from: components),
-              let range = calendar.range(of: .day, in: .month, for: firstDayOfMonth) else {
-            return []
-        }
-
-        let firstWeekday = calendar.component(.weekday, from: firstDayOfMonth)
-        var days: [Date?] = Array(repeating: nil, count: firstWeekday - 1)
-
-        for day in range {
-            if let date = calendar.date(byAdding: .day, value: day - 1, to: firstDayOfMonth) {
-                days.append(date)
-            }
-        }
-
-        // ensure full rows (optional): pad to multiple of 7 to keep consistent layout
-        while days.count % 7 != 0 {
-            days.append(nil)
-        }
-
-        return days
     }
 }
 
+// MARK: - Modern Calendar Day Cell
 
-struct CalendarDayCell: View {
+struct ModernCalendarDayCell: View {
     @EnvironmentObject var viewModel: CalendarViewModel
     let date: Date?
+    @State private var isPressed = false
     
     var body: some View {
         if let date = date {
             let calendar = Calendar.current
             let components = calendar.dateComponents([.year, .month, .day], from: date)
-            let lunarDate = LunarCalendarCalculator.convertSolarToLunar(
-                day: components.day!,
-                month: components.month!,
-                year: components.year!
-            )
+            let lunarDate = viewModel.getLunarDateForDate(date)
             
             Button(action: {
-                viewModel.selectDate(date)
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    viewModel.selectDate(date)
+                }
             }) {
-                VStack(spacing: 2) {
+                VStack(spacing: 4) {
                     Text("\(components.day!)")
-                        .font(.system(size: 16, weight: viewModel.isToday(date) ? .bold : .regular))
+                        .font(.system(size: 16, weight: viewModel.isToday(date) ? .bold : .semibold))
                         .foregroundColor(getForegroundColor())
                     
                     Text("\(lunarDate.day)")
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(getForegroundColor().opacity(0.7))
+                    
+                    if viewModel.hasHoliday(date) {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 4, height: 4)
+                    }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(getBackgroundColor())
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(viewModel.isSelected(date) ? Color.blue : Color.clear, lineWidth: 2)
+                .frame(height: 64)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(getBackgroundColor())
+                        .shadow(color: getShadowColor(), radius: isPressed ? 2 : 4, x: 0, y: isPressed ? 1 : 2)
                 )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(getBorderColor(), lineWidth: viewModel.isSelected(date) ? 2.5 : 0)
+                )
+                .scaleEffect(isPressed ? 0.95 : 1.0)
             }
+            .buttonStyle(PlainButtonStyle())
+            .onLongPressGesture(minimumDuration: 0.0, pressing: { pressing in
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    isPressed = pressing
+                }
+            }, perform: {})
         } else {
             Color.clear
-                .frame(height: 50)
+                .frame(height: 64)
         }
     }
     
@@ -321,120 +332,189 @@ struct CalendarDayCell: View {
     
     private func getBackgroundColor() -> Color {
         if viewModel.isToday(date) {
-            return .blue
+            return Color.blue
+        } else if viewModel.isSelected(date) {
+            return Color.blue.opacity(0.15)
         } else if viewModel.hasHoliday(date) {
-            return .red.opacity(0.1)
+            return Color.red.opacity(0.08)
         } else {
-            return Color(.systemGray6)
+            return Color(.tertiarySystemBackground)
+        }
+    }
+    
+    private func getBorderColor() -> Color {
+        return viewModel.isSelected(date) ? Color.blue : Color.clear
+    }
+    
+    private func getShadowColor() -> Color {
+        if viewModel.isToday(date) {
+            return Color.blue.opacity(0.3)
+        } else if viewModel.isSelected(date) {
+            return Color.blue.opacity(0.2)
+        } else {
+            return Color.black.opacity(0.05)
         }
     }
 }
 
-struct TodayInformationView: View {
+// MARK: - Modern Today Info Card
+
+struct ModernTodayInfoCard: View {
     @EnvironmentObject var viewModel: CalendarViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Thông tin ngày")
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "info.circle.fill")
+                    .font(.title3)
+                    .foregroundColor(.blue)
+                
+                Text("Thông tin ngày")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+            }
             
-            VStack(spacing: 8) {
-                InfoRow(
+            VStack(spacing: 14) {
+                ModernInfoRow(
                     icon: "calendar",
+                    iconColor: .blue,
                     title: "Âm lịch",
                     value: viewModel.lunarDate.displayString
                 )
                 
-                InfoRow(
+                Divider()
+                
+                ModernInfoRow(
                     icon: "sparkles",
+                    iconColor: .purple,
                     title: "Can Chi",
-                    value: viewModel.canChi
+                    value: LunarCalendarCalculator.getDayCanChi(
+                        day: Calendar.current.component(.day, from: viewModel.selectedDate),
+                        month: Calendar.current.component(.month, from: viewModel.selectedDate),
+                        year: Calendar.current.component(.year, from: viewModel.selectedDate)
+                    )
                 )
                 
-                InfoRow(
-                    icon: "star.circle",
-                    title: "Con giáp",
+                Divider()
+                
+                ModernInfoRow(
+                    icon: "star.circle.fill",
+                    iconColor: .yellow,
+                    title: "Con giáp năm",
                     value: "\(viewModel.zodiacAnimal) (\(viewModel.zodiacAnimalEnglish))"
                 )
                 
                 let specialDay = HolidayManager.isSpecialLunarDay(viewModel.lunarDate)
                 if specialDay.isSpecial {
-                    InfoRow(
+                    Divider()
+                    
+                    ModernInfoRow(
                         icon: "moon.stars.fill",
+                        iconColor: .orange,
                         title: "Ngày đặc biệt",
                         value: specialDay.name
                     )
                 }
             }
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.systemBackground))
-                .shadow(color: .black.opacity(0.05), radius: 5)
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(.secondarySystemBackground))
+                .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 4)
         )
     }
 }
 
-struct InfoRow: View {
+struct ModernInfoRow: View {
     let icon: String
+    let iconColor: Color
     let title: String
     let value: String
     
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundColor(.blue)
-                .frame(width: 24)
+                .font(.title3)
+                .foregroundColor(iconColor)
+                .frame(width: 32)
             
-            Text(title)
-                .foregroundColor(.secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Text(value)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.primary)
+            }
             
             Spacer()
-            
-            Text(value)
-                .fontWeight(.medium)
         }
-        .font(.subheadline)
     }
 }
 
-struct HolidaysSectionView: View {
+
+
+
+// MARK: - Modern Holidays Section
+
+struct ModernHolidaysSectionView: View {
     @EnvironmentObject var viewModel: CalendarViewModel
+    @Binding var selectedHoliday: VietnameseHoliday?
+    @Binding var showCalendarExport: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Lễ hội & Ngày lễ")
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "gift.fill")
+                    .font(.title3)
+                    .foregroundColor(.red)
+                
+                Text("Lễ hội & Ngày lễ")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.primary)
+                
+                Spacer()
+            }
             
             VStack(spacing: 12) {
                 ForEach(viewModel.todayHolidays) { holiday in
-                    HolidayCard(holiday: holiday)
+                    ModernHolidayCard(
+                        holiday: holiday,
+                        onExport: {
+                            selectedHoliday = holiday
+                            showCalendarExport = true
+                        }
+                    )
                 }
             }
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.systemBackground))
-                .shadow(color: .black.opacity(0.05), radius: 5)
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(.secondarySystemBackground))
+                .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 4)
         )
     }
 }
 
-struct HolidayCard: View {
+struct ModernHolidayCard: View {
     let holiday: VietnameseHoliday
+    let onExport: () -> Void
+    @State private var isPressed = false
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 16) {
             Text(holiday.emoji)
-                .font(.largeTitle)
+                .font(.system(size: 50))
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(holiday.name)
-                    .font(.headline)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.primary)
                 
                 Text(holiday.nameEnglish)
                     .font(.subheadline)
@@ -443,14 +523,32 @@ struct HolidayCard: View {
                 Text(holiday.description)
                     .font(.caption)
                     .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             
             Spacer()
+            
+            Button(action: onExport) {
+                Image(systemName: "calendar.badge.plus")
+                    .font(.title3)
+                    .foregroundColor(.blue)
+                    .frame(width: 44, height: 44)
+                    .background(
+                        Circle()
+                            .fill(Color.blue.opacity(0.15))
+                    )
+            }
+            .scaleEffect(isPressed ? 0.9 : 1.0)
+            .onLongPressGesture(minimumDuration: 0.0, pressing: { pressing in
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    isPressed = pressing
+                }
+            }, perform: {})
         }
-        .padding()
+        .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.red.opacity(0.1))
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.red.opacity(0.08))
         )
     }
 }

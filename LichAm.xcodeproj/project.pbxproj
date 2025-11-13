@@ -6,8 +6,44 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9AC26A2A2EC4D42A002EAD5E /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 9AC26A292EC4D42A002EAD5E /* SwiftSoup */; };
+		9AC26AB32EC4E080002EAD5E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC26A352EC4D797002EAD5E /* WidgetKit.framework */; };
+		9AC26AB42EC4E080002EAD5E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC26A372EC4D797002EAD5E /* SwiftUI.framework */; };
+		9AC26AC32EC4E081002EAD5E /* LichAmWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9AC26AB22EC4E080002EAD5E /* LichAmWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9AC26AC12EC4E081002EAD5E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3ECDFFC12EC4874D00C3ADBE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AC26AB12EC4E080002EAD5E;
+			remoteInfo = LichAmWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9AC26AC82EC4E081002EAD5E /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9AC26AC32EC4E081002EAD5E /* LichAmWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		3ECDFFC92EC4874D00C3ADBE /* LichAm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LichAm.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AC26A352EC4D797002EAD5E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		9AC26A372EC4D797002EAD5E /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		9AC26A632EC4D842002EAD5E /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
+		9AC26AB22EC4E080002EAD5E /* LichAmWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LichAmWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AC26AC92EC4E091002EAD5E /* LichAmWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LichAmWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -18,6 +54,21 @@
 			);
 			target = 3ECDFFC82EC4874D00C3ADBE /* LichAm */;
 		};
+		9AC26AC72EC4E081002EAD5E /* Exceptions for "LichAmWidget" folder in "LichAmWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9AC26AB12EC4E080002EAD5E /* LichAmWidgetExtension */;
+		};
+		9AC26ACD2EC4E168002EAD5E /* Exceptions for "LichAm" folder in "LichAmWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				App/DetailView/LunarCalendarCalculator.swift,
+				App/HolidayManager.swift,
+			);
+			target = 9AC26AB12EC4E080002EAD5E /* LichAmWidgetExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -25,8 +76,17 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				3ECDFFFB2EC4882300C3ADBE /* Exceptions for "LichAm" folder in "LichAm" target */,
+				9AC26ACD2EC4E168002EAD5E /* Exceptions for "LichAm" folder in "LichAmWidgetExtension" target */,
 			);
 			path = LichAm;
+			sourceTree = "<group>";
+		};
+		9AC26AB52EC4E080002EAD5E /* LichAmWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9AC26AC72EC4E081002EAD5E /* Exceptions for "LichAmWidget" folder in "LichAmWidgetExtension" target */,
+			);
+			path = LichAmWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -36,6 +96,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AC26A2A2EC4D42A002EAD5E /* SwiftSoup in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9AC26AAF2EC4E080002EAD5E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9AC26AB42EC4E080002EAD5E /* SwiftUI.framework in Frameworks */,
+				9AC26AB32EC4E080002EAD5E /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -45,7 +115,10 @@
 		3ECDFFC02EC4874D00C3ADBE = {
 			isa = PBXGroup;
 			children = (
+				9AC26AC92EC4E091002EAD5E /* LichAmWidgetExtension.entitlements */,
 				3ECDFFCB2EC4874D00C3ADBE /* LichAm */,
+				9AC26AB52EC4E080002EAD5E /* LichAmWidget */,
+				9AC26A342EC4D797002EAD5E /* Frameworks */,
 				3ECDFFCA2EC4874D00C3ADBE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,8 +127,19 @@
 			isa = PBXGroup;
 			children = (
 				3ECDFFC92EC4874D00C3ADBE /* LichAm.app */,
+				9AC26AB22EC4E080002EAD5E /* LichAmWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		9AC26A342EC4D797002EAD5E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9AC26A352EC4D797002EAD5E /* WidgetKit.framework */,
+				9AC26A372EC4D797002EAD5E /* SwiftUI.framework */,
+				9AC26A632EC4D842002EAD5E /* Intents.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -68,20 +152,45 @@
 				3ECDFFC52EC4874D00C3ADBE /* Sources */,
 				3ECDFFC62EC4874D00C3ADBE /* Frameworks */,
 				3ECDFFC72EC4874D00C3ADBE /* Resources */,
+				9AC26AC82EC4E081002EAD5E /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				9AC26AC22EC4E081002EAD5E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				3ECDFFCB2EC4874D00C3ADBE /* LichAm */,
 			);
 			name = LichAm;
 			packageProductDependencies = (
+				9AC26A292EC4D42A002EAD5E /* SwiftSoup */,
 			);
 			productName = LichAm;
 			productReference = 3ECDFFC92EC4874D00C3ADBE /* LichAm.app */;
 			productType = "com.apple.product-type.application";
+		};
+		9AC26AB12EC4E080002EAD5E /* LichAmWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9AC26AC42EC4E081002EAD5E /* Build configuration list for PBXNativeTarget "LichAmWidgetExtension" */;
+			buildPhases = (
+				9AC26AAE2EC4E080002EAD5E /* Sources */,
+				9AC26AAF2EC4E080002EAD5E /* Frameworks */,
+				9AC26AB02EC4E080002EAD5E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				9AC26AB52EC4E080002EAD5E /* LichAmWidget */,
+			);
+			name = LichAmWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = LichAmWidgetExtension;
+			productReference = 9AC26AB22EC4E080002EAD5E /* LichAmWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -90,11 +199,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					3ECDFFC82EC4874D00C3ADBE = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					9AC26AB12EC4E080002EAD5E = {
+						CreatedOnToolsVersion = 16.4;
 					};
 				};
 			};
@@ -107,18 +219,29 @@
 			);
 			mainGroup = 3ECDFFC02EC4874D00C3ADBE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9AC26A282EC4D42A002EAD5E /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3ECDFFCA2EC4874D00C3ADBE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				3ECDFFC82EC4874D00C3ADBE /* LichAm */,
+				9AC26AB12EC4E080002EAD5E /* LichAmWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3ECDFFC72EC4874D00C3ADBE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9AC26AB02EC4E080002EAD5E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -135,7 +258,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9AC26AAE2EC4E080002EAD5E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9AC26AC22EC4E081002EAD5E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9AC26AB12EC4E080002EAD5E /* LichAmWidgetExtension */;
+			targetProxy = 9AC26AC12EC4E081002EAD5E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3ECDFFD52EC4874F00C3ADBE /* Debug */ = {
@@ -262,25 +400,33 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LichAm/LichAm.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = XLZ4TN6SJU;
+				DEVELOPMENT_TEAM = BX2YY68T22;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LichAm/Info.plist;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Lịch Âm";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Ứng dụng cần quyền truy cập Lịch để thêm các ngày lễ và sự kiện đặc biệt vào lịch của bạn.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				IPHONEOS_DEPLOYMENT_TARGET = 15;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = vn.LichAm;
+				PRODUCT_BUNDLE_IDENTIFIER = huyduc.LichAm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -292,25 +438,91 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LichAm/LichAm.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = XLZ4TN6SJU;
+				DEVELOPMENT_TEAM = BX2YY68T22;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LichAm/Info.plist;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Lịch Âm";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Ứng dụng cần quyền truy cập Lịch để thêm các ngày lễ và sự kiện đặc biệt vào lịch của bạn.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				IPHONEOS_DEPLOYMENT_TARGET = 15;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = vn.LichAm;
+				PRODUCT_BUNDLE_IDENTIFIER = huyduc.LichAm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9AC26AC52EC4E081002EAD5E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = LichAmWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BX2YY68T22;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LichAmWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LichAmWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = huyduc.LichAm.LichAmWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9AC26AC62EC4E081002EAD5E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = LichAmWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BX2YY68T22;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LichAmWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LichAmWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = huyduc.LichAm.LichAmWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -338,7 +550,35 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		9AC26AC42EC4E081002EAD5E /* Build configuration list for PBXNativeTarget "LichAmWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9AC26AC52EC4E081002EAD5E /* Debug */,
+				9AC26AC62EC4E081002EAD5E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9AC26A282EC4D42A002EAD5E /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.11.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9AC26A292EC4D42A002EAD5E /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9AC26A282EC4D42A002EAD5E /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3ECDFFC12EC4874D00C3ADBE /* Project object */;
 }

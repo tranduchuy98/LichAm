@@ -1,10 +1,3 @@
-//
-//  LichAmApp.swift
-//  LichAm
-//
-//  Created by Huy Tran on 12/11/25.
-//
-
 import SwiftUI
 import UserNotifications
 
@@ -12,6 +5,7 @@ import UserNotifications
 struct VietnameseLunarCalendarApp: App {
     @StateObject private var calendarViewModel = CalendarViewModel()
     @StateObject private var notificationManager = NotificationManager()
+    @StateObject private var calendarIntegration = CalendarIntegrationManager()
     
     init() {
         // Request notification permissions on app launch
@@ -20,6 +14,9 @@ struct VietnameseLunarCalendarApp: App {
                 print("Notification permission granted")
             }
         }
+        
+        // Configure app appearance
+        configureAppearance()
     }
     
     var body: some Scene {
@@ -27,7 +24,31 @@ struct VietnameseLunarCalendarApp: App {
             ContentView()
                 .environmentObject(calendarViewModel)
                 .environmentObject(notificationManager)
+                .environmentObject(calendarIntegration)
                 .preferredColorScheme(calendarViewModel.isDarkMode ? .dark : .light)
+                .animation(.easeInOut(duration: 0.3), value: calendarViewModel.isDarkMode)
         }
+    }
+    
+    private func configureAppearance() {
+        // Navigation bar appearance
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithDefaultBackground()
+        appearance.titleTextAttributes = [
+            .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
+        ]
+        appearance.largeTitleTextAttributes = [
+            .font: UIFont.systemFont(ofSize: 34, weight: .bold)
+        ]
+        
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        
+        // Tab bar appearance (if needed in future)
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithDefaultBackground()
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }
 }
