@@ -132,7 +132,7 @@ struct MediumWidgetView: View {
                         .fontWeight(.medium)
                 }
 
-                let zodiac = LunarCalendarCalculator.getZodiacAnimal(year: entry.lunarDate.year)
+                let zodiac = LunarCalendarCalculator.getZodiacAnimalViet(year: entry.lunarDate.year)
                 let canChi = LunarCalendarCalculator.getCanChi(year: entry.lunarDate.year)
 
                 HStack {

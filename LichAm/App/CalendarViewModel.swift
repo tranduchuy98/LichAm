@@ -29,8 +29,7 @@ class CalendarViewModel: ObservableObject {
             year: components.year!
         )
         
-        self.zodiacAnimal = LunarCalendarCalculator.getZodiacAnimal(year: lunarDate.year)
-        self.zodiacAnimalEnglish = LunarCalendarCalculator.getZodiacAnimalEnglish(year: lunarDate.year)
+        self.zodiacAnimal = LunarCalendarCalculator.getZodiacAnimalViet(year: lunarDate.year)
         self.canChi = LunarCalendarCalculator.getCanChi(year: lunarDate.year)
         
         setupObservers()
@@ -81,8 +80,7 @@ class CalendarViewModel: ObservableObject {
             cacheLunarDate(lunarDate, for: cacheKey)
         }
         
-        zodiacAnimal = LunarCalendarCalculator.getZodiacAnimal(year: lunarDate.year)
-        zodiacAnimalEnglish = LunarCalendarCalculator.getZodiacAnimalEnglish(year: lunarDate.year)
+        zodiacAnimal = LunarCalendarCalculator.getZodiacAnimalViet(year: lunarDate.year)
         canChi = LunarCalendarCalculator.getCanChi(year: lunarDate.year)
         
         todayHolidays = HolidayManager.getHolidaysForSolarDate(

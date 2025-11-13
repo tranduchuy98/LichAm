@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9AC26A2A2EC4D42A002EAD5E /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 9AC26A292EC4D42A002EAD5E /* SwiftSoup */; };
 		9AC26AB32EC4E080002EAD5E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC26A352EC4D797002EAD5E /* WidgetKit.framework */; };
 		9AC26AB42EC4E080002EAD5E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC26A372EC4D797002EAD5E /* SwiftUI.framework */; };
 		9AC26AC32EC4E081002EAD5E /* LichAmWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9AC26AB22EC4E080002EAD5E /* LichAmWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -96,7 +95,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9AC26A2A2EC4D42A002EAD5E /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -164,7 +162,6 @@
 			);
 			name = LichAm;
 			packageProductDependencies = (
-				9AC26A292EC4D42A002EAD5E /* SwiftSoup */,
 			);
 			productName = LichAm;
 			productReference = 3ECDFFC92EC4874D00C3ADBE /* LichAm.app */;
@@ -220,7 +217,6 @@
 			mainGroup = 3ECDFFC02EC4874D00C3ADBE;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				9AC26A282EC4D42A002EAD5E /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3ECDFFCA2EC4874D00C3ADBE /* Products */;
@@ -560,25 +556,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		9AC26A282EC4D42A002EAD5E /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.11.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		9AC26A292EC4D42A002EAD5E /* SwiftSoup */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 9AC26A282EC4D42A002EAD5E /* XCRemoteSwiftPackageReference "SwiftSoup" */;
-			productName = SwiftSoup;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3ECDFFC12EC4874D00C3ADBE /* Project object */;
 }

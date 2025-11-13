@@ -169,6 +169,12 @@ class LunarCalendarCalculator {
         return zodiacAnimals[idx]
     }
     
+    static func getZodiacAnimalViet(year: Int) -> String {
+        let zodiacAnimals = ["Rắn", "Trâu", "Hổ", "Mèo", "Rồng", "Rắn", "Ngựa", "Dê", "Khỉ", "Gà", "Chó", "Heo/Lợn"]
+        let idx = positiveMod(year - 4, 12)
+        return zodiacAnimals[idx]
+    }
+    
     static func getZodiacAnimalEnglish(year: Int) -> String {
         let zodiacAnimals = ["Rat", "Ox", "Tiger", "Cat", "Dragon", "Snake", "Horse", "Goat", "Monkey", "Rooster", "Dog", "Pig"]
         let idx = positiveMod(year - 4, 12)

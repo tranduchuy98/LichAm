@@ -3,7 +3,6 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var viewModel: CalendarViewModel
     @StateObject private var calendarIntegration = CalendarIntegrationManager()
-    @State private var showAuspiciousHours = false
     @State private var showHolidaysList = false
     @State private var selectedHoliday: VietnameseHoliday?
     @State private var showCalendarExport = false
@@ -20,12 +19,8 @@ struct ContentView: View {
                     ModernCalendarView()
                         .transition(.move(edge: .top).combined(with: .opacity))
                     
-                    // Today's Information Card
-                    ModernTodayInfoCard()
-                        .transition(.move(edge: .leading).combined(with: .opacity))
-                    
-                    
-                    // Holidays Section
+                    AuspiciousHoursView(selectedDate: viewModel.selectedDate)
+                   
                     if !viewModel.todayHolidays.isEmpty {
                         ModernHolidaysSectionView(
                             selectedHoliday: $selectedHoliday,
@@ -132,10 +127,14 @@ struct ModernHeaderView: View {
                         .frame(width: 1, height: 30)
                     
                     VStack(spacing: 4) {
-                        Text("Con giáp")
+                        Text("Ngày")
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.8))
-                        Text("\(viewModel.zodiacAnimal)")
+                        Text(LunarCalendarCalculator.getDayCanChi(
+                            day: Calendar.current.component(.day, from: viewModel.selectedDate),
+                            month: Calendar.current.component(.month, from: viewModel.selectedDate),
+                            year: Calendar.current.component(.year, from: viewModel.selectedDate)
+                        ))
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.white)
@@ -146,10 +145,10 @@ struct ModernHeaderView: View {
                         .frame(width: 1, height: 30)
                     
                     VStack(spacing: 4) {
-                        Text("English")
+                        Text("Con giáp")
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.8))
-                        Text(viewModel.zodiacAnimalEnglish)
+                        Text("\(viewModel.zodiacAnimal)")
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.white)
@@ -357,76 +356,6 @@ struct ModernCalendarDayCell: View {
     }
 }
 
-// MARK: - Modern Today Info Card
-
-struct ModernTodayInfoCard: View {
-    @EnvironmentObject var viewModel: CalendarViewModel
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "info.circle.fill")
-                    .font(.title3)
-                    .foregroundColor(.blue)
-                
-                Text("Thông tin ngày")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.primary)
-                
-                Spacer()
-            }
-            
-            VStack(spacing: 14) {
-                ModernInfoRow(
-                    icon: "calendar",
-                    iconColor: .blue,
-                    title: "Âm lịch",
-                    value: viewModel.lunarDate.displayString
-                )
-                
-                Divider()
-                
-                ModernInfoRow(
-                    icon: "sparkles",
-                    iconColor: .purple,
-                    title: "Can Chi",
-                    value: LunarCalendarCalculator.getDayCanChi(
-                        day: Calendar.current.component(.day, from: viewModel.selectedDate),
-                        month: Calendar.current.component(.month, from: viewModel.selectedDate),
-                        year: Calendar.current.component(.year, from: viewModel.selectedDate)
-                    )
-                )
-                
-                Divider()
-                
-                ModernInfoRow(
-                    icon: "star.circle.fill",
-                    iconColor: .yellow,
-                    title: "Con giáp năm",
-                    value: "\(viewModel.zodiacAnimal) (\(viewModel.zodiacAnimalEnglish))"
-                )
-                
-                let specialDay = HolidayManager.isSpecialLunarDay(viewModel.lunarDate)
-                if specialDay.isSpecial {
-                    Divider()
-                    
-                    ModernInfoRow(
-                        icon: "moon.stars.fill",
-                        iconColor: .orange,
-                        title: "Ngày đặc biệt",
-                        value: specialDay.name
-                    )
-                }
-            }
-        }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 4)
-        )
-    }
-}
 
 struct ModernInfoRow: View {
     let icon: String
