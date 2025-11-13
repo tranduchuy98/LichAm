@@ -64,37 +64,106 @@ struct SmallWidgetView: View {
     var entry: LunarCalendarProvider.Entry
 
     var body: some View {
-        VStack(spacing: 4) {
-            // Solar date
-            Text(entry.date, style: .date)
-                .font(.caption)
-                .foregroundColor(.secondary)
-
-            // Solar day number
-            Text("\(Calendar.current.component(.day, from: entry.date))")
-                .font(.system(size: 40, weight: .bold))
-                .foregroundColor(.primary)
-
-            // Lunar date
-            Text("Ngày \(entry.lunarDate.shortDisplayString)")
-                .font(.caption)
-                .foregroundColor(.red)
-                .fontWeight(.medium)
-
-            // Holiday indicator
-            if !entry.holidays.isEmpty {
-                Text(entry.holidays[0].emoji)
-                    .font(.title3)
+        if #available(iOS 17.0, *) {
+            VStack(spacing: 4) {
+                // Solar date
+                Text(entry.date, style: .date)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                // Solar day number
+                Text("\(Calendar.current.component(.day, from: entry.date))")
+                    .font(.system(size: 40, weight: .bold))
+                    .foregroundColor(.primary)
+                
+                // Lunar date
+                Text("Ngày \(entry.lunarDate.shortDisplayString)")
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .fontWeight(.medium)
+                
+                // Holiday indicator
+                if !entry.holidays.isEmpty {
+                    Text(entry.holidays[0].emoji)
+                        .font(.title3)
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .containerBackground( for: .widget) {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        } else {
+            if #available(iOS 17.0, *) {
+                VStack(spacing: 4) {
+                    // Solar date
+                    Text(entry.date, style: .date)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    // Solar day number
+                    Text("\(Calendar.current.component(.day, from: entry.date))")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundColor(.primary)
+                    
+                    // Lunar date
+                    Text("Ngày \(entry.lunarDate.shortDisplayString)")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        .fontWeight(.medium)
+                    
+                    // Holiday indicator
+                    if !entry.holidays.isEmpty {
+                        Text(entry.holidays[0].emoji)
+                            .font(.title3)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .containerBackground( for: .widget) {
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+            } else {
+                VStack(spacing: 4) {
+                    // Solar date
+                    Text(entry.date, style: .date)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    // Solar day number
+                    Text("\(Calendar.current.component(.day, from: entry.date))")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundColor(.primary)
+                    
+                    // Lunar date
+                    Text("Ngày \(entry.lunarDate.shortDisplayString)")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        .fontWeight(.medium)
+                    
+                    // Holiday indicator
+                    if !entry.holidays.isEmpty {
+                        Text(entry.holidays[0].emoji)
+                            .font(.title3)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+            }
+           
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
     }
 }
 
@@ -103,66 +172,129 @@ struct MediumWidgetView: View {
     var entry: LunarCalendarProvider.Entry
 
     var body: some View {
-        HStack(spacing: 16) {
-            // Left side - Date
-            VStack(spacing: 4) {
-                Text(entry.date, formatter: monthFormatter)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                Text("\(Calendar.current.component(.day, from: entry.date))")
-                    .font(.system(size: 48, weight: .bold))
-                    .foregroundColor(.primary)
-
-                Text(entry.date, formatter: weekdayFormatter)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            .frame(width: 80)
-
-            Divider()
-
-            // Right side - Lunar info
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Image(systemName: "moon.fill")
-                        .foregroundColor(.red)
-                    Text("Ngày \(entry.lunarDate.displayString)")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                }
-
-                let zodiac = LunarCalendarCalculator.getZodiacAnimalViet(year: entry.lunarDate.year)
-                let canChi = LunarCalendarCalculator.getCanChi(year: entry.lunarDate.year)
-
-                HStack {
-                    Image(systemName: "star.circle")
-                        .foregroundColor(.blue)
-                    Text(zodiac)
+        if #available(iOS 17.0, *) {
+            HStack(spacing: 16) {
+                // Left side - Date
+                VStack(spacing: 4) {
+                    Text(entry.date, formatter: monthFormatter)
                         .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Text("\(Calendar.current.component(.day, from: entry.date))")
+                        .font(.system(size: 48, weight: .bold))
+                        .foregroundColor(.primary)
+                    
+                    Text(entry.date, formatter: weekdayFormatter)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
-
-                if !entry.holidays.isEmpty {
+                .frame(width: 80)
+                
+                Divider()
+                
+                // Right side - Lunar info
+                VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text(entry.holidays[0].emoji)
-                        Text(entry.holidays[0].name)
+                        Image(systemName: "moon.fill")
+                            .foregroundColor(.red)
+                        Text("Ngày \(entry.lunarDate.displayString)")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
+                    
+                    let zodiac = LunarCalendarCalculator.getZodiacAnimalViet(year: entry.lunarDate.year)
+                    let canChi = LunarCalendarCalculator.getCanChi(year: entry.lunarDate.year)
+                    
+                    HStack {
+                        Image(systemName: "star.circle")
+                            .foregroundColor(.blue)
+                        Text(zodiac)
                             .font(.caption)
-                            .fontWeight(.semibold)
+                    }
+                    
+                    if !entry.holidays.isEmpty {
+                        HStack {
+                            Text(entry.holidays[0].emoji)
+                            Text(entry.holidays[0].name)
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                        }
                     }
                 }
+                
+                Spacer()
             }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .containerBackground( for: .widget) {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        } else {
+            HStack(spacing: 16) {
+                // Left side - Date
+                VStack(spacing: 4) {
+                    Text(entry.date, formatter: monthFormatter)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
 
-            Spacer()
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                    Text("\(Calendar.current.component(.day, from: entry.date))")
+                        .font(.system(size: 48, weight: .bold))
+                        .foregroundColor(.primary)
+
+                    Text(entry.date, formatter: weekdayFormatter)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(width: 80)
+
+                Divider()
+
+                // Right side - Lunar info
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "moon.fill")
+                            .foregroundColor(.red)
+                        Text("Ngày \(entry.lunarDate.displayString)")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
+
+                    let zodiac = LunarCalendarCalculator.getZodiacAnimalViet(year: entry.lunarDate.year)
+                    let canChi = LunarCalendarCalculator.getCanChi(year: entry.lunarDate.year)
+
+                    HStack {
+                        Image(systemName: "star.circle")
+                            .foregroundColor(.blue)
+                        Text(zodiac)
+                            .font(.caption)
+                    }
+
+                    if !entry.holidays.isEmpty {
+                        HStack {
+                            Text(entry.holidays[0].emoji)
+                            Text(entry.holidays[0].name)
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                        }
+                    }
+                }
+
+                Spacer()
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
             )
-        )
+        }
     }
 
     private var monthFormatter: DateFormatter {
@@ -183,79 +315,162 @@ struct LargeWidgetView: View {
     var entry: LunarCalendarProvider.Entry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Header
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(entry.date, style: .date)
-                        .font(.headline)
-
-                    Text("Ngày \(entry.lunarDate.displayString)")
-                        .font(.subheadline)
-                        .foregroundColor(.red)
-                }
-
-                Spacer()
-
-                Text("\(Calendar.current.component(.day, from: entry.date))")
-                    .font(.system(size: 48, weight: .bold))
-            }
-
-            Divider()
-
-            // Zodiac info
-            VStack(alignment: .leading, spacing: 8) {
-                let zodiac = LunarCalendarCalculator.getZodiacAnimal(year: entry.lunarDate.year)
-                let zodiacEng = LunarCalendarCalculator.getZodiacAnimalEnglish(year: entry.lunarDate.year)
-                let canChi = LunarCalendarCalculator.getCanChi(year: entry.lunarDate.year)
-
+        if #available(iOS 17.0, *) {
+            VStack(alignment: .leading, spacing: 12) {
+                // Header
                 HStack {
-                    Image(systemName: "star.circle.fill")
-                        .foregroundColor(.yellow)
-                    Text("Con giáp: \(zodiac) (\(zodiacEng))")
-                        .font(.caption)
+                    VStack(alignment: .leading) {
+                        Text(entry.date, style: .date)
+                            .font(.headline)
+                        
+                        Text("Ngày \(entry.lunarDate.displayString)")
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                    }
+                    
+                    Spacer()
+                    
+                    Text("\(Calendar.current.component(.day, from: entry.date))")
+                        .font(.system(size: 48, weight: .bold))
                 }
-
-                HStack {
-                    Image(systemName: "sparkles")
-                        .foregroundColor(.blue)
-                    Text("Can Chi: \(canChi)")
-                        .font(.caption)
-                }
-            }
-
-            // Holidays
-            if !entry.holidays.isEmpty {
+                
                 Divider()
-
-                VStack(alignment: .leading, spacing: 6) {
-                    ForEach(entry.holidays.prefix(2)) { holiday in
-                        HStack {
-                            Text(holiday.emoji)
-                            VStack(alignment: .leading) {
-                                Text(holiday.name)
-                                    .font(.caption)
-                                    .fontWeight(.semibold)
-                                Text(holiday.nameEnglish)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                
+                // Zodiac info
+                VStack(alignment: .leading, spacing: 8) {
+                    let zodiac = LunarCalendarCalculator.getZodiacAnimal(year: entry.lunarDate.year)
+                    let zodiacEng = LunarCalendarCalculator.getZodiacAnimalEnglish(year: entry.lunarDate.year)
+                    let canChi = LunarCalendarCalculator.getCanChi(year: entry.lunarDate.year)
+                    
+                    HStack {
+                        Image(systemName: "star.circle.fill")
+                            .foregroundColor(.yellow)
+                        Text("Con giáp: \(zodiac) (\(zodiacEng))")
+                            .font(.caption)
+                    }
+                    
+                    HStack {
+                        Image(systemName: "sparkles")
+                            .foregroundColor(.blue)
+                        Text("Can Chi: \(canChi)")
+                            .font(.caption)
+                    }
+                }
+                
+                // Holidays
+                if !entry.holidays.isEmpty {
+                    Divider()
+                    
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(entry.holidays.prefix(2)) { holiday in
+                            HStack {
+                                Text(holiday.emoji)
+                                VStack(alignment: .leading) {
+                                    Text(holiday.name)
+                                        .font(.caption)
+                                        .fontWeight(.semibold)
+                                    Text(holiday.nameEnglish)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
                     }
                 }
+                
+                Spacer()
             }
-
-            Spacer()
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .containerBackground( for: .widget) {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
             )
-        )
+        } else {
+            VStack(alignment: .leading, spacing: 12) {
+                // Header
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(entry.date, style: .date)
+                            .font(.headline)
+
+                        Text("Ngày \(entry.lunarDate.displayString)")
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                    }
+
+                    Spacer()
+
+                    Text("\(Calendar.current.component(.day, from: entry.date))")
+                        .font(.system(size: 48, weight: .bold))
+                }
+
+                Divider()
+
+                // Zodiac info
+                VStack(alignment: .leading, spacing: 8) {
+                    let zodiac = LunarCalendarCalculator.getZodiacAnimal(year: entry.lunarDate.year)
+                    let zodiacEng = LunarCalendarCalculator.getZodiacAnimalEnglish(year: entry.lunarDate.year)
+                    let canChi = LunarCalendarCalculator.getCanChi(year: entry.lunarDate.year)
+
+                    HStack {
+                        Image(systemName: "star.circle.fill")
+                            .foregroundColor(.yellow)
+                        Text("Con giáp: \(zodiac) (\(zodiacEng))")
+                            .font(.caption)
+                    }
+
+                    HStack {
+                        Image(systemName: "sparkles")
+                            .foregroundColor(.blue)
+                        Text("Can Chi: \(canChi)")
+                            .font(.caption)
+                    }
+                }
+
+                // Holidays
+                if !entry.holidays.isEmpty {
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(entry.holidays.prefix(2)) { holiday in
+                            HStack {
+                                Text(holiday.emoji)
+                                VStack(alignment: .leading) {
+                                    Text(holiday.name)
+                                        .font(.caption)
+                                        .fontWeight(.semibold)
+                                    Text(holiday.nameEnglish)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer()
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+        }
     }
 }
 
