@@ -403,7 +403,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LichAm/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Lịch Âm";
+				INFOPLIST_KEY_CFBundleDisplayName = "Âm Lịch Việt Nam";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Ứng dụng cần quyền truy cập Lịch để thêm các ngày lễ và sự kiện đặc biệt vào lịch của bạn.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
@@ -441,7 +441,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LichAm/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Lịch Âm";
+				INFOPLIST_KEY_CFBundleDisplayName = "Âm Lịch Việt Nam";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Ứng dụng cần quyền truy cập Lịch để thêm các ngày lễ và sự kiện đặc biệt vào lịch của bạn.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
