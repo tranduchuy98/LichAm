@@ -6,6 +6,7 @@ struct VietnameseLunarCalendarApp: App {
     @StateObject private var calendarViewModel = CalendarViewModel()
     @StateObject private var notificationManager = NotificationManager()
     @StateObject private var calendarIntegration = CalendarIntegrationManager()
+    @StateObject private var eventManager = EventManager() // NEW!
     
     init() {
         // Request notification permissions on app launch
@@ -25,6 +26,7 @@ struct VietnameseLunarCalendarApp: App {
                 .environmentObject(calendarViewModel)
                 .environmentObject(notificationManager)
                 .environmentObject(calendarIntegration)
+                .environmentObject(eventManager) // NEW!
                 .preferredColorScheme(calendarViewModel.isDarkMode ? .dark : .light)
                 .animation(.easeInOut(duration: 0.3), value: calendarViewModel.isDarkMode)
         }
