@@ -111,7 +111,8 @@ struct ContentView: View {
                     .environmentObject(calendarIntegration)
             }
             .sheet(isPresented: $showDatePicker) {
-                DatePickerSheet(selectedDate: $viewModel.selectedDate, showDatePicker: $showDatePicker)
+                    DatePickerSheet(showDatePicker: $showDatePicker)
+                        .environmentObject(viewModel)
             }
             .sheet(isPresented: $showEventsList) {
                 EventListView()
@@ -208,15 +209,9 @@ struct DatePickerButton: View {
 
 // MARK: - Date Picker Sheet
 struct DatePickerSheet: View {
-    @Binding var selectedDate: Date
+    @EnvironmentObject var viewModel: CalendarViewModel  // ← THÊM DÒNG NÀY
     @Binding var showDatePicker: Bool
-    @State private var tempDate: Date
-    
-    init(selectedDate: Binding<Date>, showDatePicker: Binding<Bool>) {
-        self._selectedDate = selectedDate
-        self._showDatePicker = showDatePicker
-        self._tempDate = State(initialValue: selectedDate.wrappedValue)
-    }
+    @State private var tempDate: Date = Date()
     
     var body: some View {
         NavigationView {
@@ -284,8 +279,8 @@ struct DatePickerSheet: View {
                     }
                     
                     Button(action: {
-                        selectedDate = tempDate
-                        showDatePicker = false
+                        viewModel.selectDate(tempDate)
+                                   showDatePicker = false
                     }) {
                         Text("Xác nhận")
                             .font(.system(size: 16, weight: .bold))
@@ -318,6 +313,9 @@ struct DatePickerSheet: View {
                 )
                 .ignoresSafeArea()
             )
+            .onAppear {
+                        tempDate = viewModel.selectedDate
+                    }
             .navigationBarHidden(true)
         }
     }
