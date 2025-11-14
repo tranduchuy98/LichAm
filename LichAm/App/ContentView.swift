@@ -49,8 +49,7 @@ struct ContentView: View {
                         }
                     }
                     
-                    // Auspicious Hours - OPTIMIZED with .id()
-                    AuspiciousHoursView(selectedDate: viewModel.selectedDate)
+                    AuspiciousHoursView(selectedDate: viewModel.selectedDate, showInauspicious: false)
                         .id(viewModel.selectedDate)
                     
                     Spacer(minLength: 40)

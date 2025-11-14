@@ -2,26 +2,25 @@
 //  AuspiciousHoursView.swift
 //  LichAm
 //
-//  TRADITIONAL STYLE VERSION - Xcode 16.4 Compatible
-//  OPTIMIZED FOR PERFORMANCE - Values cached at initialization
+//  OPTIMIZED FOR PERFORMANCE - Lightweight cells + option to hide inauspicious hours
 //
 
 import SwiftUI
 
-// MARK: - Auspicious Hours View (OPTIMIZED)
 struct AuspiciousHoursView: View {
     let selectedDate: Date
-    
-    // CACHE ALL COMPUTED VALUES AT INIT
+    let showInauspicious: Bool // nếu false => chỉ hiển thị giờ hoàng đạo
+
+    // Cached computed values
     private let dayChiIndex: Int
     private let dayChi: String
     private let auspiciousHours: [String]
     private let allHourChis: [String] = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"]
-    
-    init(selectedDate: Date) {
+
+    init(selectedDate: Date, showInauspicious: Bool = true) {
         self.selectedDate = selectedDate
-        
-        // Calculate all values once during initialization
+        self.showInauspicious = showInauspicious
+
         let calendar = Calendar.current
         let components = calendar.dateComponents([.year, .month, .day], from: selectedDate)
         let jdn = Self.julianDayNumber(
@@ -29,319 +28,153 @@ struct AuspiciousHoursView: View {
             month: components.month ?? 1,
             year: components.year ?? 2025
         )
-        
+
         self.dayChiIndex = Self.positiveMod(jdn + 1, 12)
-        
+
         let chiOrder = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"]
         self.dayChi = chiOrder[dayChiIndex]
-        
+
         self.auspiciousHours = AuspiciousHoursManager.gioHoangDaoMapping[dayChi] ?? []
     }
-    
+
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 14) {
             headerView
-            legendView
-            hoursListView
-        }
-        .padding(20)
-        .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(Color.white)
-                
-                RoundedRectangle(cornerRadius: 24)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [Color.red.opacity(0.3), Color.orange.opacity(0.2)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 2
-                    )
+
+            // Only show legend when inauspicious is shown
+            if showInauspicious {
+                legendView
             }
-            .shadow(color: .red.opacity(0.15), radius: 12, x: 0, y: 4)
+
+            // Light-weight list: LazyVStack inside parent ScrollView is enough
+            LazyVStack(spacing: 10, pinnedViews: []) {
+                ForEach(filteredHourList(), id: \.self) { chi in
+                    AuspiciousHourRow(chi: chi,
+                                     timeRange: AuspiciousHoursManager.chiHourRanges[chi] ?? "",
+                                     isAuspicious: auspiciousHours.contains(chi))
+                        .id(chi) // stable id to help diffing
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.98))
+                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
         )
     }
-    
-    // MARK: - View Components
-    
-    private var headerView: some View {
-        HStack {
-            Text("⏰")
-                .font(.title2)
-            
-            Text("Giờ Hoàng Đạo")
-                .font(.system(size: 18, weight: .bold, design: .serif))
-                .foregroundColor(.red)
-            
-            Spacer()
-            
-            Text("🕐")
-                .font(.title2)
-        }
-    }
-    
-    private var legendView: some View {
-        HStack(spacing: 20) {
-            HStack(spacing: 8) {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.red.opacity(0.8), Color.red.opacity(0.6)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 16, height: 16)
-                    
-                    Image(systemName: "star.fill")
-                        .font(.system(size: 8))
-                        .foregroundColor(.yellow)
-                }
-                
-                Text("Giờ Hoàng Đạo")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.red)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.red.opacity(0.1))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .strokeBorder(Color.red.opacity(0.3), lineWidth: 1)
-                    )
-            )
-            
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.gray.opacity(0.6), Color.gray.opacity(0.4)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 16, height: 16)
-                
-                Text("Giờ Hắc Đạo")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.secondary)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.1))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .strokeBorder(Color.gray.opacity(0.2), lineWidth: 1)
-                    )
-            )
-        }
-    }
-    
-    // OPTIMIZED: Use LazyVStack for better scrolling performance
-    private var hoursListView: some View {
-        LazyVStack(spacing: 12) {
-            ForEach(Array(allHourChis.enumerated()), id: \.element) { index, chi in
-                let isAuspicious = auspiciousHours.contains(chi)
-                TraditionalAuspiciousHourCard(
-                    chi: chi,
-                    timeRange: AuspiciousHoursManager.chiHourRanges[chi] ?? "",
-                    isAuspicious: isAuspicious
-                )
-            }
+
+    private func filteredHourList() -> [String] {
+        if showInauspicious {
+            return allHourChis
+        } else {
+            // only show auspicious hours, in original order
+            return allHourChis.filter { auspiciousHours.contains($0) }
         }
     }
 
-    
-    // MARK: - Helper Functions (STATIC for performance)
-    
+    // MARK: - Header & Legend
+
+    private var headerView: some View {
+        HStack {
+            Text("⏰")
+                .font(.headline)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Giờ Hoàng Đạo")
+                    .font(.system(size: 16, weight: .semibold))
+                Text("Ngày: \(dayChi)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+        }
+    }
+
+    private var legendView: some View {
+        HStack(spacing: 12) {
+            HStack(spacing: 8) {
+                Circle().frame(width: 10, height: 10).foregroundColor(.red)
+                Text("Hoàng Đạo").font(.caption).foregroundColor(.primary)
+            }
+            HStack(spacing: 8) {
+                Circle().frame(width: 10, height: 10).foregroundColor(.gray)
+                Text("Hắc Đạo").font(.caption).foregroundColor(.secondary)
+            }
+            Spacer()
+        }
+    }
+
+    // MARK: - Helpers
+
     private static func julianDayNumber(day: Int, month: Int, year: Int) -> Int {
         let a = (14 - month) / 12
         let y = year + 4800 - a
         let m = month + 12 * a - 3
         var jd = day + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y / 400 - 32045
-        
+
         if jd < 2299161 {
             jd = day + (153 * m + 2) / 5 + 365 * y + y / 4 - 32083
         }
-        
+
         return jd
     }
-    
+
     private static func positiveMod(_ a: Int, _ m: Int) -> Int {
         let r = a % m
         return r >= 0 ? r : r + m
     }
 }
 
-// MARK: - Traditional Auspicious Hour Card (OPTIMIZED with Equatable)
-struct TraditionalAuspiciousHourCard: View, Equatable {
+// MARK: - Lightweight Row (no heavy gradients / minimal layering)
+private struct AuspiciousHourRow: View {
     let chi: String
     let timeRange: String
     let isAuspicious: Bool
-    @State private var isPressed = false
-    
-    // Equatable conformance to reduce unnecessary redraws
-    static func == (lhs: TraditionalAuspiciousHourCard, rhs: TraditionalAuspiciousHourCard) -> Bool {
-        lhs.chi == rhs.chi &&
-        lhs.timeRange == rhs.timeRange &&
-        lhs.isAuspicious == rhs.isAuspicious
-    }
-    
+
     var body: some View {
-        HStack(spacing: 16) {
-            // Chi symbol with traditional styling
+        HStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: isAuspicious ?
-                                [Color.red.opacity(0.9), Color.red.opacity(0.7)] :
-                                [Color.gray.opacity(0.6), Color.gray.opacity(0.4)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 56, height: 56)
-                
-                // Gold border for auspicious hours
-                if isAuspicious {
-                    Circle()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [Color.yellow.opacity(0.8), Color.orange.opacity(0.6)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 2
-                        )
-                        .frame(width: 56, height: 56)
-                }
-                
+                    .frame(width: 44, height: 44)
+                    .foregroundColor(isAuspicious ? Color.red.opacity(0.9) : Color.gray.opacity(0.2))
                 Text(chi)
-                    .font(.system(size: 22, weight: .bold, design: .serif))
-                    .foregroundColor(isAuspicious ? .white : .primary.opacity(0.7))
+                    .font(.system(size: 18, weight: .bold, design: .serif))
+                    .foregroundColor(isAuspicious ? .white : .primary)
             }
-            .shadow(
-                color: isAuspicious ? Color.red.opacity(0.4) : Color.black.opacity(0.2),
-                radius: isAuspicious ? 6 : 3,
-                x: 0,
-                y: 2
-            )
-            
-            // Time info with traditional styling
-            VStack(alignment: .leading, spacing: 6) {
+
+            VStack(alignment: .leading, spacing: 4) {
                 Text(timeRange)
-                    .font(.system(size: 18, weight: .bold, design: .monospaced))
+                    .font(.system(size: 15, weight: .semibold, design: .monospaced))
                     .foregroundColor(isAuspicious ? .red : .primary)
-                
-                HStack(spacing: 4) {
-                    if isAuspicious {
-                        Text("✨")
-                            .font(.caption)
-                        Text("Giờ Hoàng Đạo")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.red)
-                    } else {
-                        Text("⚫️")
-                            .font(.caption)
-                        Text("Giờ Hắc Đạo")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.secondary)
-                    }
-                }
+                Text(isAuspicious ? "Giờ Hoàng Đạo" : "Giờ Hắc Đạo")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
-            
+
             Spacer()
-            
-            // Status indicator
+
             if isAuspicious {
-                VStack(spacing: 4) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.yellow.opacity(0.3), Color.orange.opacity(0.2)],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .frame(width: 40, height: 40)
-                        
-                        Image(systemName: "star.fill")
-                            .font(.title3)
-                            .foregroundColor(.yellow)
-                    }
-                    
-                    Text("Tốt")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(.red)
-                }
+                Text("Tốt")
+                    .font(.caption2)
+                    .bold()
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 10)
+                    .background(RoundedRectangle(cornerRadius: 10).foregroundColor(Color.red.opacity(0.12)))
             } else {
+                // minimal icon for inauspicious
                 Image(systemName: "moon.fill")
-                    .font(.title3)
-                    .foregroundColor(.gray.opacity(0.5))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
             }
         }
-        .padding(16)
-        .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(
-                        isAuspicious ?
-                            LinearGradient(
-                                colors: [
-                                    Color.red.opacity(0.08),
-                                    Color.orange.opacity(0.05)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ) :
-                            LinearGradient(
-                                colors: [
-                                    Color.gray.opacity(0.05),
-                                    Color.gray.opacity(0.03)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                    )
-                
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(
-                        isAuspicious ?
-                            LinearGradient(
-                                colors: [Color.red.opacity(0.4), Color.orange.opacity(0.3)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ) :
-                            LinearGradient(
-                                colors: [Color.gray.opacity(0.2), Color.gray.opacity(0.15)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                        lineWidth: isAuspicious ? 2 : 1
-                    )
-            }
-        )
-        .shadow(
-            color: isAuspicious ? Color.red.opacity(0.2) : Color.black.opacity(0.08),
-            radius: isAuspicious ? 10 : 4,
-            x: 0,
-            y: isAuspicious ? 4 : 2
-        )
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+        .contentShape(Rectangle())
     }
 }
 
-// MARK: - Auspicious Hours Manager
+// MARK: - AuspiciousHoursManager (kept minimal)
 struct AuspiciousHoursManager {
     static let gioHoangDaoMapping: [String: [String]] = [
         "Tý":  ["Dần","Thân","Tý","Ngọ","Sửu","Mùi"],
@@ -357,26 +190,10 @@ struct AuspiciousHoursManager {
         "Tuất":["Dần","Thìn","Tỵ","Thân","Dậu","Hợi"],
         "Hợi": ["Sửu","Thìn","Ngọ","Mùi","Tuất","Hợi"]
     ]
-    
+
     static let chiHourRanges: [String: String] = [
         "Tý":"23:00 - 01:00", "Sửu":"01:00 - 03:00", "Dần":"03:00 - 05:00", "Mão":"05:00 - 07:00",
         "Thìn":"07:00 - 09:00", "Tỵ":"09:00 - 11:00", "Ngọ":"11:00 - 13:00", "Mùi":"13:00 - 15:00",
         "Thân":"15:00 - 17:00", "Dậu":"17:00 - 19:00", "Tuất":"19:00 - 21:00", "Hợi":"21:00 - 23:00"
-    ]
-    
-    // Traditional descriptions for each Chi hour
-    static let chiDescriptions: [String: String] = [
-        "Tý": "Đầu ngày mới, thời điểm yên tĩnh",
-        "Sửu": "Lúc trâu cày, chăm chỉ làm việc",
-        "Dần": "Lúc hổ gầm, khởi đầu mạnh mẽ",
-        "Mão": "Lúc mèo rửa mặt, sự thanh khiết",
-        "Thìn": "Lúc rồng bay, sức mạnh thần thánh",
-        "Tỵ": "Lúc rắn ẩn, sự khôn ngoan",
-        "Ngọ": "Giữa trưa, ánh sáng rực rỡ",
-        "Mùi": "Lúc dê gặm cỏ, sự bình yên",
-        "Thân": "Lúc khỉ leo trèo, nhanh nhẹn",
-        "Dậu": "Lúc gà về chuồng, sum họp",
-        "Tuất": "Lúc chó canh nhà, bảo vệ",
-        "Hợi": "Cuối ngày, nghỉ ngơi thư giãn"
     ]
 }
