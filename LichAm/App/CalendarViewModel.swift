@@ -153,14 +153,18 @@ class CalendarViewModel: ObservableObject {
         UserDefaults.standard.set(isDarkMode, forKey: "isDarkMode")
     }
     
+    // FIXED: Date selection now properly updates currentMonth
     func selectDate(_ date: Date) {
+        let calendar = Calendar.current
+        
+        // Update currentMonth FIRST (synchronously, without animation)
+        if let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: date)) {
+            currentMonth = monthStart
+        }
+        
+        // Then animate the selected date change
         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
             selectedDate = date
-            
-            let calendar = Calendar.current
-            if let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: date)) {
-                currentMonth = monthStart
-            }
         }
         
         updateCalendarData()

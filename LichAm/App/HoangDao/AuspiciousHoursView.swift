@@ -3,37 +3,39 @@
 //  LichAm
 //
 //  TRADITIONAL STYLE VERSION - Xcode 16.4 Compatible
+//  OPTIMIZED FOR PERFORMANCE - Values cached at initialization
 //
 
 import SwiftUI
 
-// MARK: - Auspicious Hours View
+// MARK: - Auspicious Hours View (OPTIMIZED)
 struct AuspiciousHoursView: View {
+    let selectedDate: Date
     
-   let selectedDate: Date
+    // CACHE ALL COMPUTED VALUES AT INIT
+    private let dayChiIndex: Int
+    private let dayChi: String
+    private let auspiciousHours: [String]
+    private let allHourChis: [String] = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"]
     
-    private var dayChiIndex: Int {
+    init(selectedDate: Date) {
+        self.selectedDate = selectedDate
+        
+        // Calculate all values once during initialization
         let calendar = Calendar.current
         let components = calendar.dateComponents([.year, .month, .day], from: selectedDate)
-        let jdn = julianDayNumber(
+        let jdn = Self.julianDayNumber(
             day: components.day ?? 1,
             month: components.month ?? 1,
             year: components.year ?? 2025
         )
-        return positiveMod(jdn + 1, 12)
-    }
-    
-    private var dayChi: String {
+        
+        self.dayChiIndex = Self.positiveMod(jdn + 1, 12)
+        
         let chiOrder = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"]
-        return chiOrder[dayChiIndex]
-    }
-    
-    private var auspiciousHours: [String] {
-        AuspiciousHoursManager.gioHoangDaoMapping[dayChi] ?? []
-    }
-    
-    private var allHourChis: [String] {
-        ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"]
+        self.dayChi = chiOrder[dayChiIndex]
+        
+        self.auspiciousHours = AuspiciousHoursManager.gioHoangDaoMapping[dayChi] ?? []
     }
     
     var body: some View {
@@ -142,8 +144,9 @@ struct AuspiciousHoursView: View {
         }
     }
     
+    // OPTIMIZED: Use LazyVStack for better scrolling performance
     private var hoursListView: some View {
-        VStack(spacing: 12) {
+        LazyVStack(spacing: 12) {
             ForEach(Array(allHourChis.enumerated()), id: \.element) { index, chi in
                 let isAuspicious = auspiciousHours.contains(chi)
                 TraditionalAuspiciousHourCard(
@@ -156,9 +159,9 @@ struct AuspiciousHoursView: View {
     }
 
     
-    // MARK: - Helper Functions
+    // MARK: - Helper Functions (STATIC for performance)
     
-    private func julianDayNumber(day: Int, month: Int, year: Int) -> Int {
+    private static func julianDayNumber(day: Int, month: Int, year: Int) -> Int {
         let a = (14 - month) / 12
         let y = year + 4800 - a
         let m = month + 12 * a - 3
@@ -171,18 +174,25 @@ struct AuspiciousHoursView: View {
         return jd
     }
     
-    private func positiveMod(_ a: Int, _ m: Int) -> Int {
+    private static func positiveMod(_ a: Int, _ m: Int) -> Int {
         let r = a % m
         return r >= 0 ? r : r + m
     }
 }
 
-// MARK: - Traditional Auspicious Hour Card
-struct TraditionalAuspiciousHourCard: View {
+// MARK: - Traditional Auspicious Hour Card (OPTIMIZED with Equatable)
+struct TraditionalAuspiciousHourCard: View, Equatable {
     let chi: String
     let timeRange: String
     let isAuspicious: Bool
     @State private var isPressed = false
+    
+    // Equatable conformance to reduce unnecessary redraws
+    static func == (lhs: TraditionalAuspiciousHourCard, rhs: TraditionalAuspiciousHourCard) -> Bool {
+        lhs.chi == rhs.chi &&
+        lhs.timeRange == rhs.timeRange &&
+        lhs.isAuspicious == rhs.isAuspicious
+    }
     
     var body: some View {
         HStack(spacing: 16) {
