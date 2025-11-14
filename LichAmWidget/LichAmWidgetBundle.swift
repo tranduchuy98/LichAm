@@ -4,7 +4,7 @@ import SwiftUI
 // MARK: - Widget Timeline Provider
 struct LunarCalendarProvider: TimelineProvider {
     func placeholder(in context: Context) -> LunarCalendarEntry {
-        LunarCalendarEntry(date: Date(), lunarDate: sampleLunarDate(), holidays: [])
+        LunarCalendarEntry(date: Date(), lunarDate: sampleLunarDate(), holidays: [], auspiciousHours: [])
     }
 
     func getSnapshot(in context: Context, completion: @escaping (LunarCalendarEntry) -> Void) {
@@ -43,12 +43,42 @@ struct LunarCalendarProvider: TimelineProvider {
             month: components.month!,
             year: components.year!
         )
+        
+        // Calculate auspicious hours
+        let jdn = julianDayNumber(day: components.day!, month: components.month!, year: components.year!)
+        let dayChiIndex = positiveMod(jdn + 1, 12)
+        let chiOrder = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"]
+        let dayChi = chiOrder[dayChiIndex]
+        let auspiciousHours = AuspiciousHoursManager.gioHoangDaoMapping[dayChi] ?? []
 
-        return LunarCalendarEntry(date: date, lunarDate: lunarDate, holidays: holidays)
+        return LunarCalendarEntry(
+            date: date,
+            lunarDate: lunarDate,
+            holidays: holidays,
+            auspiciousHours: auspiciousHours
+        )
     }
 
     private func sampleLunarDate() -> LunarDate {
         return LunarDate(day: 15, month: 8, year: 2024, isLeapMonth: false)
+    }
+    
+    private func julianDayNumber(day: Int, month: Int, year: Int) -> Int {
+        let a = (14 - month) / 12
+        let y = year + 4800 - a
+        let m = month + 12 * a - 3
+        var jd = day + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y / 400 - 32045
+        
+        if jd < 2299161 {
+            jd = day + (153 * m + 2) / 5 + 365 * y + y / 4 - 32083
+        }
+        
+        return jd
+    }
+    
+    private func positiveMod(_ a: Int, _ m: Int) -> Int {
+        let r = a % m
+        return r >= 0 ? r : r + m
     }
 }
 
@@ -57,9 +87,10 @@ struct LunarCalendarEntry: TimelineEntry {
     let date: Date
     let lunarDate: LunarDate
     let holidays: [VietnameseHoliday]
+    let auspiciousHours: [String]
 }
 
-// MARK: - Small Widget View
+// MARK: - Small Widget View WITH AUSPICIOUS HOURS
 struct SmallWidgetView: View {
     var entry: LunarCalendarProvider.Entry
     
@@ -76,65 +107,94 @@ struct SmallWidgetView: View {
             year: components.year!
         )
     }
+    
+    private var currentHour: String {
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: entry.date)
+        let chiOrder = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"]
+        
+        // Calculate chi index for current hour
+        // Tý: 23-1, Sửu: 1-3, Dần: 3-5, etc.
+        let chiIndex: Int
+        if hour == 23 || hour == 0 {
+            chiIndex = 0 // Tý
+        } else {
+            chiIndex = (hour + 1) / 2
+        }
+        
+        return chiOrder[chiIndex]
+    }
+    
+    private var isCurrentHourAuspicious: Bool {
+        entry.auspiciousHours.contains(currentHour)
+    }
 
     var body: some View {
         if #available(iOS 17.0, *) {
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 // Can Chi at top
                 Text(dayChi)
-                    .font(.system(size: 11, weight: .semibold, design: .serif))
+                    .font(.system(size: 10, weight: .semibold, design: .serif))
                     .foregroundColor(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
-                    .background(
-                        Capsule()
-                            .fill(Color.red)
-                    )
-                
-                Spacer()
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 3)
+                    .background(Capsule().fill(Color.red))
                 
                 // LARGE LUNAR DATE - PRIMARY FOCUS
-                HStack(spacing: 8) {
+                HStack(spacing: 6) {
                     Image(systemName: "moon.fill")
-                        .font(.title)
+                        .font(.title2)
                         .foregroundColor(.red.opacity(0.8))
                     
-                    VStack(spacing: 2) {
+                    VStack(spacing: 1) {
                         Text("\(entry.lunarDate.day)")
-                            .font(.system(size: 56, weight: .bold, design: .rounded))
+                            .font(.system(size: 48, weight: .bold, design: .rounded))
                             .foregroundColor(.red)
                         
-                        Text("Tháng \(entry.lunarDate.month)")
-                            .font(.system(size: 11, weight: .semibold))
+                        Text("T\(entry.lunarDate.month)")
+                            .font(.system(size: 10, weight: .semibold))
                             .foregroundColor(.red.opacity(0.7))
                     }
                 }
                 
-                // Smaller solar date below
+                // Smaller solar date
                 Text("Dương: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.red.opacity(0.7))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.red.opacity(0.1))
-                    )
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(.primary.opacity(0.7))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(RoundedRectangle(cornerRadius: 6).fill(Color.red.opacity(0.1)))
+                
+                // AUSPICIOUS HOUR INDICATOR
+                HStack(spacing: 4) {
+                    Image(systemName: isCurrentHourAuspicious ? "star.fill" : "moon.stars.fill")
+                        .font(.system(size: 9))
+                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .gray)
+                    
+                    Text(currentHour)
+                        .font(.system(size: 10, weight: .bold, design: .serif))
+                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                    
+                    Text(isCurrentHourAuspicious ? "Tốt" : "Hắc")
+                        .font(.system(size: 8, weight: .semibold))
+                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(isCurrentHourAuspicious ? Color.yellow.opacity(0.2) : Color.gray.opacity(0.1))
+                )
                 
                 // Holiday indicator
                 if !entry.holidays.isEmpty {
                     Text(entry.holidays[0].emoji)
-                        .font(.title3)
-                } else {
-                    Spacer().frame(height: 20)
+                        .font(.caption)
                 }
-                
-                Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .containerBackground(for: .widget) {
                 ZStack {
-                    // Gradient background - red/cream theme
                     LinearGradient(
                         gradient: Gradient(colors: [
                             Color(red: 1.0, green: 0.95, blue: 0.9),
@@ -144,75 +204,68 @@ struct SmallWidgetView: View {
                         endPoint: .bottomTrailing
                     )
                     
-                    // Decorative circle patterns
-                    Circle()
-                        .fill(Color.red.opacity(0.05))
-                        .frame(width: 120, height: 120)
-                        .offset(x: -30, y: -40)
-                    
-                    Circle()
-                        .fill(Color.orange.opacity(0.05))
-                        .frame(width: 100, height: 100)
-                        .offset(x: 50, y: 60)
+                    Circle().fill(Color.red.opacity(0.05)).frame(width: 120, height: 120).offset(x: -30, y: -40)
+                    Circle().fill(Color.orange.opacity(0.05)).frame(width: 100, height: 100).offset(x: 50, y: 60)
                 }
             }
         } else {
-            VStack(spacing: 8) {
-                // Can Chi at top
+            // iOS 16 fallback
+            VStack(spacing: 6) {
                 Text(dayChi)
-                    .font(.system(size: 11, weight: .semibold, design: .serif))
+                    .font(.system(size: 10, weight: .semibold, design: .serif))
                     .foregroundColor(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
-                    .background(
-                        Capsule()
-                            .fill(Color.red)
-                    )
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 3)
+                    .background(Capsule().fill(Color.red))
                 
-                Spacer()
-                
-                // LARGE LUNAR DATE - PRIMARY FOCUS
-                HStack(spacing: 8) {
+                HStack(spacing: 6) {
                     Image(systemName: "moon.fill")
-                        .font(.title)
+                        .font(.title2)
                         .foregroundColor(.red.opacity(0.8))
                     
-                    VStack(spacing: 2) {
+                    VStack(spacing: 1) {
                         Text("\(entry.lunarDate.day)")
-                            .font(.system(size: 56, weight: .bold, design: .rounded))
+                            .font(.system(size: 48, weight: .bold, design: .rounded))
                             .foregroundColor(.red)
-                        
-                        Text("Tháng \(entry.lunarDate.month)")
-                            .font(.system(size: 11, weight: .semibold))
+                        Text("T\(entry.lunarDate.month)")
+                            .font(.system(size: 10, weight: .semibold))
                             .foregroundColor(.red.opacity(0.7))
                     }
                 }
                 
-                // Smaller solar date below
                 Text("Dương: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.red.opacity(0.7))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.red.opacity(0.1))
-                    )
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(.primary.opacity(0.7))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(RoundedRectangle(cornerRadius: 6).fill(Color.red.opacity(0.1)))
                 
-                // Holiday indicator
+                HStack(spacing: 4) {
+                    Image(systemName: isCurrentHourAuspicious ? "star.fill" : "moon.stars.fill")
+                        .font(.system(size: 9))
+                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .gray)
+                    Text(currentHour)
+                        .font(.system(size: 10, weight: .bold, design: .serif))
+                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                    Text(isCurrentHourAuspicious ? "Tốt" : "Hắc")
+                        .font(.system(size: 8, weight: .semibold))
+                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(isCurrentHourAuspicious ? Color.yellow.opacity(0.2) : Color.gray.opacity(0.1))
+                )
+                
                 if !entry.holidays.isEmpty {
                     Text(entry.holidays[0].emoji)
-                        .font(.title3)
-                } else {
-                    Spacer().frame(height: 20)
+                        .font(.caption)
                 }
-                
-                Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
                 ZStack {
-                    // Gradient background - red/cream theme
                     LinearGradient(
                         gradient: Gradient(colors: [
                             Color(red: 1.0, green: 0.95, blue: 0.9),
@@ -221,24 +274,14 @@ struct SmallWidgetView: View {
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
-                    
-                    // Decorative circle patterns
-                    Circle()
-                        .fill(Color.red.opacity(0.05))
-                        .frame(width: 120, height: 120)
-                        .offset(x: -30, y: -40)
-                    
-                    Circle()
-                        .fill(Color.orange.opacity(0.05))
-                        .frame(width: 100, height: 100)
-                        .offset(x: 50, y: 60)
+                    Circle().fill(Color.red.opacity(0.05)).frame(width: 120, height: 120).offset(x: -30, y: -40)
+                    Circle().fill(Color.orange.opacity(0.05)).frame(width: 100, height: 100).offset(x: 50, y: 60)
                 }
             )
         }
     }
 }
-
-// MARK: - Medium Widget View
+// MARK: - Medium Widget View (continued from Part 1)
 struct MediumWidgetView: View {
     var entry: LunarCalendarProvider.Entry
     
@@ -368,7 +411,6 @@ struct MediumWidgetView: View {
             }
         } else {
             HStack(spacing: 16) {
-                // Left side - Large lunar day number
                 VStack(spacing: 6) {
                     HStack(spacing: 8) {
                         Image(systemName: "moon.fill")
@@ -392,17 +434,13 @@ struct MediumWidgetView: View {
                 }
                 .frame(width: 130)
                 
-                Divider()
-                    .frame(height: 80)
+                Divider().frame(height: 80)
                 
-                // Right side - Additional info
                 VStack(alignment: .leading, spacing: 10) {
-                    // Month and year
                     Text(entry.date, formatter: monthYearFormatter)
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.primary)
                     
-                    // Solar date
                     HStack(spacing: 6) {
                         Image(systemName: "sun.max.fill")
                             .foregroundColor(.orange)
@@ -425,7 +463,6 @@ struct MediumWidgetView: View {
                         }
                     }
                     
-                    // Can Chi
                     HStack(spacing: 6) {
                         Image(systemName: "star.circle")
                             .foregroundColor(.red)
@@ -435,7 +472,6 @@ struct MediumWidgetView: View {
                             .foregroundColor(.primary)
                     }
                     
-                    // Holiday
                     if !entry.holidays.isEmpty {
                         HStack(spacing: 6) {
                             Text(entry.holidays[0].emoji)
@@ -464,15 +500,8 @@ struct MediumWidgetView: View {
                         endPoint: .bottomTrailing
                     )
                     
-                    Circle()
-                        .fill(Color.red.opacity(0.04))
-                        .frame(width: 180, height: 180)
-                        .offset(x: -60, y: -30)
-                    
-                    Circle()
-                        .fill(Color.orange.opacity(0.04))
-                        .frame(width: 150, height: 150)
-                        .offset(x: 100, y: 50)
+                    Circle().fill(Color.red.opacity(0.04)).frame(width: 180, height: 180).offset(x: -60, y: -30)
+                    Circle().fill(Color.orange.opacity(0.04)).frame(width: 150, height: 150).offset(x: 100, y: 50)
                 }
             )
         }
@@ -486,7 +515,7 @@ struct MediumWidgetView: View {
     }
 }
 
-// MARK: - Large Widget View with Calendar
+// MARK: - Large Widget View WITH AUSPICIOUS HOURS
 struct LargeWidgetView: View {
     var entry: LunarCalendarProvider.Entry
     
@@ -506,31 +535,31 @@ struct LargeWidgetView: View {
 
     var body: some View {
         if #available(iOS 17.0, *) {
-            VStack(spacing: 12) {
+            VStack(spacing: 10) {
                 // Header with current date info
-                VStack(spacing: 8) {
+                VStack(spacing: 6) {
                     Text(entry.date, formatter: monthYearFormatter)
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.red)
                     
-                    HStack(spacing: 16) {
-                        VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 3) {
                             Text("Âm: \(entry.lunarDate.day)/\(entry.lunarDate.month)")
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(.red)
                             Text("Dương: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
-                                .font(.caption)
+                                .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
                         
-                        Divider().frame(height: 30)
+                        Divider().frame(height: 28)
                         
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 3) {
                             Text(dayChi)
-                                .font(.system(size: 11, weight: .semibold, design: .serif))
+                                .font(.system(size: 10, weight: .semibold, design: .serif))
                                 .foregroundColor(.primary)
                             Text(canChi)
-                                .font(.caption)
+                                .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -556,7 +585,7 @@ struct LargeWidgetView: View {
                     .padding(.horizontal)
                 }
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, 10)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .containerBackground(for: .widget) {
                 ZStack {
@@ -569,43 +598,35 @@ struct LargeWidgetView: View {
                         endPoint: .bottomTrailing
                     )
                     
-                    Circle()
-                        .fill(Color.red.opacity(0.03))
-                        .frame(width: 240, height: 240)
-                        .offset(x: -80, y: -60)
-                    
-                    Circle()
-                        .fill(Color.orange.opacity(0.03))
-                        .frame(width: 200, height: 200)
-                        .offset(x: 120, y: 100)
+                    Circle().fill(Color.red.opacity(0.03)).frame(width: 240, height: 240).offset(x: -80, y: -60)
+                    Circle().fill(Color.orange.opacity(0.03)).frame(width: 200, height: 200).offset(x: 120, y: 100)
                 }
             }
         } else {
-            VStack(spacing: 12) {
-                // Header with current date info
-                VStack(spacing: 8) {
+            VStack(spacing: 10) {
+                VStack(spacing: 6) {
                     Text(entry.date, formatter: monthYearFormatter)
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.red)
                     
-                    HStack(spacing: 16) {
-                        VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 3) {
                             Text("Âm: \(entry.lunarDate.day)/\(entry.lunarDate.month)")
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(.red)
                             Text("Dương: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
-                                .font(.caption)
+                                .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
                         
-                        Divider().frame(height: 30)
+                        Divider().frame(height: 28)
                         
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: 3) {
                             Text(dayChi)
-                                .font(.system(size: 11, weight: .semibold, design: .serif))
+                                .font(.system(size: 10, weight: .semibold, design: .serif))
                                 .foregroundColor(.primary)
                             Text(canChi)
-                                .font(.caption)
+                                .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -614,11 +635,43 @@ struct LargeWidgetView: View {
                 
                 Divider()
                 
-                // Mini Calendar
-                WidgetCalendarView(currentDate: entry.date, lunarDate: entry.lunarDate)
-                    .padding(.horizontal, 8)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 10))
+                            .foregroundColor(.yellow)
+                        Text("Giờ Hoàng Đạo")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.red)
+                    }
+                    
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 6) {
+                        ForEach(entry.auspiciousHours.prefix(6), id: \.self) { hour in
+                            HStack(spacing: 3) {
+                                Image(systemName: "star.circle.fill")
+                                    .font(.system(size: 8))
+                                    .foregroundColor(.yellow)
+                                Text(hour)
+                                    .font(.system(size: 10, weight: .bold, design: .serif))
+                                    .foregroundColor(.primary)
+                                if let timeRange = AuspiciousHoursManager.chiHourRanges[hour] {
+                                    Text(timeRange.components(separatedBy: " - ").first ?? "")
+                                        .font(.system(size: 8))
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(Color.yellow.opacity(0.15))
+                            )
+                        }
+                    }
+                }
+                .padding(.horizontal, 12)
                 
-                // Holiday indicator at bottom
                 if !entry.holidays.isEmpty {
                     HStack {
                         Text(entry.holidays[0].emoji)
@@ -631,7 +684,7 @@ struct LargeWidgetView: View {
                     .padding(.horizontal)
                 }
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, 10)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
                 ZStack {
@@ -644,15 +697,8 @@ struct LargeWidgetView: View {
                         endPoint: .bottomTrailing
                     )
                     
-                    Circle()
-                        .fill(Color.red.opacity(0.03))
-                        .frame(width: 240, height: 240)
-                        .offset(x: -80, y: -60)
-                    
-                    Circle()
-                        .fill(Color.orange.opacity(0.03))
-                        .frame(width: 200, height: 200)
-                        .offset(x: 120, y: 100)
+                    Circle().fill(Color.red.opacity(0.03)).frame(width: 240, height: 240).offset(x: -80, y: -60)
+                    Circle().fill(Color.orange.opacity(0.03)).frame(width: 200, height: 200).offset(x: 120, y: 100)
                 }
             )
         }
@@ -666,7 +712,6 @@ struct LargeWidgetView: View {
     }
 }
 
-// MARK: - Widget Calendar View (Mini version for Large Widget)
 struct WidgetCalendarView: View {
     let currentDate: Date
     let lunarDate: LunarDate
@@ -746,6 +791,222 @@ struct WidgetCalendarView: View {
     }
 }
 
+// MARK: - IMPROVED ACCESSORY VIEWS FOR LOCK SCREEN
+
+// MARK: - Accessory Circular - Lunar Date Focus
+@available(iOS 16.0, *)
+struct AccessoryCircularView: View {
+    var entry: LunarCalendarProvider.Entry
+    
+    var body: some View {
+        if #available(iOSApplicationExtension 17.0, *) {
+            ZStack {
+                AccessoryWidgetBackground()
+                VStack(spacing: 0) {
+                    Text("\(entry.lunarDate.day)")
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                    Text("T\(entry.lunarDate.month)")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(.red)
+                }
+            }
+            .containerBackground(for: .widget) {}
+        } else {
+            ZStack {
+                AccessoryWidgetBackground()
+                VStack(spacing: 0) {
+                    Text("\(entry.lunarDate.day)")
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                    Text("T\(entry.lunarDate.month)")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(.red)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Accessory Rectangular - IMPROVED with Can Chi and Clear Layout
+@available(iOS 16.0, *)
+struct AccessoryRectangularView: View {
+    var entry: LunarCalendarProvider.Entry
+    
+    private var yearCanChi: String {
+        LunarCalendarCalculator.getCanChi(year: entry.lunarDate.year)
+    }
+    
+    var body: some View {
+        if #available(iOSApplicationExtension 17.0, *) {
+            VStack(alignment: .leading, spacing: 4) {
+                // Top row: Large lunar date
+                HStack(spacing: 6) {
+                    Image(systemName: "moon.fill")
+                        .font(.system(size: 12))
+                        .foregroundColor(.red)
+                    
+                    HStack(spacing: 2) {
+                        Text("\(entry.lunarDate.day)")
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                        Text("/")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.secondary)
+                        Text("\(entry.lunarDate.month)")
+                            .font(.system(size: 20, weight: .bold))
+                    }
+                    
+                    Spacer()
+                    
+                    // Solar date (smaller)
+                    VStack(alignment: .trailing, spacing: 1) {
+                        Text("Dương")
+                            .font(.system(size: 7))
+                            .foregroundColor(.secondary)
+                        HStack(spacing: 1) {
+                            Text("\(Calendar.current.component(.day, from: entry.date))")
+                                .font(.system(size: 14, weight: .semibold))
+                            Text("/\(Calendar.current.component(.month, from: entry.date))")
+                                .font(.system(size: 11))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                
+                // Bottom row: Can Chi and holiday
+                HStack(spacing: 8) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.circle.fill")
+                            .font(.system(size: 8))
+                            .foregroundColor(.yellow)
+                        Text(yearCanChi)
+                            .font(.system(size: 10, weight: .semibold, design: .serif))
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.yellow.opacity(0.15))
+                    )
+                    
+                    if !entry.holidays.isEmpty {
+                        HStack(spacing: 3) {
+                            Text(entry.holidays[0].emoji)
+                                .font(.system(size: 10))
+                            Text(entry.holidays[0].name)
+                                .font(.system(size: 9, weight: .medium))
+                                .lineLimit(1)
+                        }
+                    }
+                    
+                    Spacer()
+                }
+            }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
+            .containerBackground(for: .widget) {}
+        } else {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Image(systemName: "moon.fill")
+                        .font(.system(size: 12))
+                        .foregroundColor(.red)
+                    
+                    HStack(spacing: 2) {
+                        Text("\(entry.lunarDate.day)")
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                        Text("/")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.secondary)
+                        Text("\(entry.lunarDate.month)")
+                            .font(.system(size: 20, weight: .bold))
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .trailing, spacing: 1) {
+                        Text("Dương")
+                            .font(.system(size: 7))
+                            .foregroundColor(.secondary)
+                        HStack(spacing: 1) {
+                            Text("\(Calendar.current.component(.day, from: entry.date))")
+                                .font(.system(size: 14, weight: .semibold))
+                            Text("/\(Calendar.current.component(.month, from: entry.date))")
+                                .font(.system(size: 11))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                
+                HStack(spacing: 8) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.circle.fill")
+                            .font(.system(size: 8))
+                            .foregroundColor(.yellow)
+                        Text(yearCanChi)
+                            .font(.system(size: 10, weight: .semibold, design: .serif))
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.yellow.opacity(0.15))
+                    )
+                    
+                    if !entry.holidays.isEmpty {
+                        HStack(spacing: 3) {
+                            Text(entry.holidays[0].emoji)
+                                .font(.system(size: 10))
+                            Text(entry.holidays[0].name)
+                                .font(.system(size: 9, weight: .medium))
+                                .lineLimit(1)
+                        }
+                    }
+                    
+                    Spacer()
+                }
+            }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
+        }
+    }
+}
+
+// MARK: - Accessory Inline - BEAUTIFIED Lunar Only
+@available(iOS 16.0, *)
+struct AccessoryInlineView: View {
+    var entry: LunarCalendarProvider.Entry
+    
+    var body: some View {
+        HStack(spacing: 5) {
+            Image(systemName: "moon.fill")
+            
+            Text("Âm:")
+                .fontWeight(.medium)
+            
+            HStack(spacing: 2) {
+                Text("\(entry.lunarDate.day)")
+                    .fontWeight(.bold)
+                Text("/")
+                    .fontWeight(.medium)
+                Text("\(entry.lunarDate.month)")
+                    .fontWeight(.bold)
+                Text("/")
+                    .fontWeight(.medium)
+                Text("\(entry.lunarDate.year)")
+                    .fontWeight(.medium)
+            }
+            
+            if !entry.holidays.isEmpty {
+                Text("•")
+                    .fontWeight(.light)
+                Text(entry.holidays[0].emoji)
+            }
+        }
+    }
+}
+
+// MARK: - Widget Entry View
 struct LunarCalendarWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
     var entry: LunarCalendarProvider.Entry
@@ -758,7 +1019,6 @@ struct LunarCalendarWidgetEntryView: View {
             MediumWidgetView(entry: entry)
         case .systemLarge:
             LargeWidgetView(entry: entry)
-        // --- Lock Screen accessory families
         case .accessoryCircular:
             if #available(iOS 16.0, *) {
                 AccessoryCircularView(entry: entry)
@@ -783,138 +1043,6 @@ struct LunarCalendarWidgetEntryView: View {
     }
 }
 
-// MARK: - Accessory Views for Lock Screen
-@available(iOS 16.0, *)
-private struct AccessoryCircularView: View {
-    var entry: LunarCalendarProvider.Entry
-    var body: some View {
-        if #available(iOSApplicationExtension 17.0, *) {
-            ZStack {
-                AccessoryWidgetBackground()
-                VStack(spacing: 0) {
-                    Text("\(entry.lunarDate.day)")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                    Text("T\(entry.lunarDate.month)")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.red)
-                }
-            }
-            .containerBackground(for: .widget) {
-                
-            }
-        } else {
-            ZStack {
-                AccessoryWidgetBackground()
-                VStack(spacing: 0) {
-                    Text("\(entry.lunarDate.day)")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                    Text("T\(entry.lunarDate.month)")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.red)
-                }
-            }
-        }
-    }
-}
-
-@available(iOS 16.0, *)
-private struct AccessoryRectangularView: View {
-    var entry: LunarCalendarProvider.Entry
-    var body: some View {
-        if #available(iOSApplicationExtension 17.0, *) {
-            HStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "moon.fill")
-                            .font(.system(size: 10))
-                        Text("\(entry.lunarDate.day)")
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
-                    }
-                    Text("Tháng \(entry.lunarDate.month)")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.red)
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text("Dương")
-                        .font(.system(size: 8))
-                        .foregroundColor(.secondary)
-                    HStack(spacing: 1) {
-                        Text("\(Calendar.current.component(.day, from: entry.date))")
-                            .font(.system(size: 16, weight: .semibold))
-                        Text("/")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                        Text("\(Calendar.current.component(.month, from: entry.date))")
-                            .font(.system(size: 14, weight: .medium))
-                    }
-                    if !entry.holidays.isEmpty {
-                        Text(entry.holidays[0].emoji)
-                            .font(.caption2)
-                    }
-                }
-            }
-            .padding(.horizontal, 6)
-            .containerBackground(for: .widget) {
-                
-            }
-        } else {
-            HStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "moon.fill")
-                            .font(.system(size: 10))
-                        Text("\(entry.lunarDate.day)")
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
-                    }
-                    Text("Tháng \(entry.lunarDate.month)")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.red)
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text("Dương")
-                        .font(.system(size: 8))
-                        .foregroundColor(.secondary)
-                    HStack(spacing: 1) {
-                        Text("\(Calendar.current.component(.day, from: entry.date))")
-                            .font(.system(size: 16, weight: .semibold))
-                        Text("/")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                        Text("\(Calendar.current.component(.month, from: entry.date))")
-                            .font(.system(size: 14, weight: .medium))
-                    }
-                    if !entry.holidays.isEmpty {
-                        Text(entry.holidays[0].emoji)
-                            .font(.caption2)
-                    }
-                }
-            }
-            .padding(.horizontal, 6)
-        }
-    }
-}
-
-@available(iOS 16.0, *)
-private struct AccessoryInlineView: View {
-    var entry: LunarCalendarProvider.Entry
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "moon.fill")
-            Text("\(entry.lunarDate.day)/\(entry.lunarDate.month)")
-                .fontWeight(.medium)
-            if !entry.holidays.isEmpty {
-                Text(entry.holidays[0].emoji)
-            }
-        }
-    }
-}
-
 // MARK: - Widget Configuration
 struct LunarCalendarWidget: Widget {
     let kind: String = "LunarCalendarWidget"
@@ -925,7 +1053,7 @@ struct LunarCalendarWidget: Widget {
                 LunarCalendarWidgetEntryView(entry: entry)
             }
             .configurationDisplayName("Lịch Âm Việt Nam")
-            .description("Hiển thị ngày Âm lịch, Can Chi và các ngày lễ truyền thống")
+            .description("Hiển thị ngày Âm lịch, Can Chi, Giờ Hoàng Đạo và các ngày lễ truyền thống")
             .supportedFamilies([
                 .systemSmall,
                 .systemMedium,
@@ -939,7 +1067,7 @@ struct LunarCalendarWidget: Widget {
                 LunarCalendarWidgetEntryView(entry: entry)
             }
             .configurationDisplayName("Lịch Âm Việt Nam")
-            .description("Hiển thị ngày Âm lịch, Can Chi và các ngày lễ truyền thống")
+            .description("Hiển thị ngày Âm lịch, Can Chi, Giờ Hoàng Đạo và các ngày lễ truyền thống")
             .supportedFamilies([
                 .systemSmall,
                 .systemMedium,
@@ -970,21 +1098,32 @@ struct LunarCalendarWidget_Previews: PreviewProvider {
                 month: components.month!,
                 year: components.year!
             ),
-            holidays: []
+            holidays: [],
+            auspiciousHours: ["Tý", "Dần", "Mão", "Thìn", "Ngọ", "Tuất"]
         )
 
         Group {
             LunarCalendarWidgetEntryView(entry: sampleEntry)
                 .previewContext(WidgetPreviewContext(family: .systemSmall))
-                .previewDisplayName("Small Widget - Lunar Focus")
+                .previewDisplayName("Small - Lunar + Auspicious Hour")
 
             LunarCalendarWidgetEntryView(entry: sampleEntry)
                 .previewContext(WidgetPreviewContext(family: .systemMedium))
-                .previewDisplayName("Medium Widget - Lunar Focus")
+                .previewDisplayName("Medium - Lunar Info")
 
             LunarCalendarWidgetEntryView(entry: sampleEntry)
                 .previewContext(WidgetPreviewContext(family: .systemLarge))
-                .previewDisplayName("Large Widget - Calendar View")
+                .previewDisplayName("Large - With Auspicious Hours")
+            
+            if #available(iOS 16.0, *) {
+                LunarCalendarWidgetEntryView(entry: sampleEntry)
+                    .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
+                    .previewDisplayName("Lock - Rectangular")
+                
+                LunarCalendarWidgetEntryView(entry: sampleEntry)
+                    .previewContext(WidgetPreviewContext(family: .accessoryInline))
+                    .previewDisplayName("Lock - Inline")
+            }
         }
     }
 }

@@ -19,17 +19,17 @@ struct ContentView: View {
                     TraditionalHeaderView()
                         .transition(.scale.combined(with: .opacity))
                     
-                    // Date Picker Button
+                    // Date Picker Button - IMPROVED WITH LUNAR DATE
                     DatePickerButton(showDatePicker: $showDatePicker)
                     
                     // Traditional Calendar
                     TraditionalCalendarView()
                         .transition(.move(edge: .top).combined(with: .opacity))
                     
-                    // Events Section - NEW!
+                    // Events Section
                     if eventManager.hasEvents(for: viewModel.selectedDate) {
                         DailyEventsSection()
-                            .id(viewModel.selectedDate) // Force refresh on date change
+                            .id(viewModel.selectedDate)
                             .transition(.scale.combined(with: .opacity))
                     }
                     
@@ -202,28 +202,65 @@ struct TraditionalBackground: View {
     }
 }
 
-// MARK: - Date Picker Button
+// MARK: - Date Picker Button - IMPROVED WITH LUNAR DATE
 struct DatePickerButton: View {
+    @EnvironmentObject var viewModel: CalendarViewModel
     @Binding var showDatePicker: Bool
     
     var body: some View {
         Button(action: {
             showDatePicker = true
         }) {
-            HStack {
+            HStack(spacing: 16) {
                 Image(systemName: "calendar.badge.clock")
-                    .font(.title3)
+                    .font(.title2)
                     .foregroundColor(.red)
                 
-                Text("Chọn ngày cụ thể")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.red)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Chọn ngày cụ thể")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.red)
+                    
+                    HStack(spacing: 12) {
+                        // Solar date
+                        HStack(spacing: 4) {
+                            Image(systemName: "sun.max.fill")
+                                .font(.system(size: 11))
+                                .foregroundColor(.orange.opacity(0.8))
+                            Text(formatSolarDate(viewModel.selectedDate))
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(.primary.opacity(0.8))
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.orange.opacity(0.1))
+                        )
+                        
+                        // Lunar date
+                        HStack(spacing: 4) {
+                            Image(systemName: "moon.fill")
+                                .font(.system(size: 11))
+                                .foregroundColor(.red.opacity(0.8))
+                            Text("\(viewModel.lunarDate.day)/\(viewModel.lunarDate.month)")
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundColor(.red)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.red.opacity(0.1))
+                        )
+                    }
+                }
                 
                 Spacer()
                 
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundColor(.red.opacity(0.6))
+                Image(systemName: "chevron.right.circle.fill")
+                    .font(.title3)
+                    .foregroundColor(.red.opacity(0.7))
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
@@ -245,11 +282,17 @@ struct DatePickerButton: View {
             )
         }
     }
+    
+    private func formatSolarDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd/MM/yyyy"
+        return formatter.string(from: date)
+    }
 }
 
 // MARK: - Date Picker Sheet
 struct DatePickerSheet: View {
-    @EnvironmentObject var viewModel: CalendarViewModel  // ← THÊM DÒNG NÀY
+    @EnvironmentObject var viewModel: CalendarViewModel
     @Binding var showDatePicker: Bool
     @State private var tempDate: Date = Date()
     
@@ -283,21 +326,77 @@ struct DatePickerSheet: View {
                         .shadow(color: Color.red.opacity(0.1), radius: 10, x: 0, y: 5)
                 )
                 
-                // Selected date info - VIETNAMESE FORMAT
-                VStack(spacing: 12) {
+                // Selected date info - ENHANCED WITH LUNAR DATE
+                VStack(spacing: 16) {
                     Text("Ngày đã chọn")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
+                    // Solar date
                     Text(formatVietnameseDate(tempDate))
-                        .font(.system(size: 20, weight: .semibold))
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.red)
+                    
+                    // Lunar date display
+                    let calendar = Calendar.current
+                    let components = calendar.dateComponents([.year, .month, .day], from: tempDate)
+                    let lunarDate = LunarCalendarCalculator.convertSolarToLunar(
+                        day: components.day!,
+                        month: components.month!,
+                        year: components.year!
+                    )
+                    
+                    HStack(spacing: 16) {
+                        VStack(spacing: 6) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "moon.fill")
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+                                Text("Âm lịch")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Text("\(lunarDate.day)/\(lunarDate.month)/\(lunarDate.year)")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.red)
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.red.opacity(0.1))
+                        )
+                        
+                        VStack(spacing: 6) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "star.circle")
+                                    .font(.caption)
+                                    .foregroundColor(.orange)
+                                Text("Can Chi")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Text(LunarCalendarCalculator.getDayCanChi(
+                                day: components.day!,
+                                month: components.month!,
+                                year: components.year!
+                            ))
+                            .font(.system(size: 14, weight: .bold, design: .serif))
+                            .foregroundColor(.primary)
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.orange.opacity(0.1))
+                        )
+                    }
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.red.opacity(0.1))
+                        .fill(Color.red.opacity(0.05))
                 )
                 
                 Spacer()
@@ -320,7 +419,7 @@ struct DatePickerSheet: View {
                     
                     Button(action: {
                         viewModel.selectDate(tempDate)
-                                   showDatePicker = false
+                        showDatePicker = false
                     }) {
                         Text("Xác nhận")
                             .font(.system(size: 16, weight: .bold))
@@ -354,13 +453,12 @@ struct DatePickerSheet: View {
                 .ignoresSafeArea()
             )
             .onAppear {
-                        tempDate = viewModel.selectedDate
-                    }
+                tempDate = viewModel.selectedDate
+            }
             .navigationBarHidden(true)
         }
     }
     
-    // VIETNAMESE DATE FORMAT
     private func formatVietnameseDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, d MMMM yyyy"
@@ -375,7 +473,7 @@ struct TraditionalHeaderView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            // Solar date with traditional styling - VIETNAMESE FORMAT
+            // Solar date with traditional styling
             Text(formatVietnameseDate(viewModel.selectedDate))
                 .font(.system(size: 26, weight: .bold, design: .serif))
                 .foregroundColor(.red)
@@ -494,7 +592,6 @@ struct TraditionalHeaderView: View {
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.selectedDate)
     }
     
-    // VIETNAMESE DATE FORMAT
     private func formatVietnameseDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, d MMMM yyyy"
@@ -502,6 +599,3 @@ struct TraditionalHeaderView: View {
         return formatter.string(from: date)
     }
 }
-
-
-

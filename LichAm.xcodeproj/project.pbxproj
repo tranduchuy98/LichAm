@@ -64,6 +64,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				App/DetailView/LunarCalendarCalculator.swift,
+				App/HoangDao/AuspiciousHoursView.swift,
 				App/HolidayManager.swift,
 			);
 			target = 9AC26AB12EC4E080002EAD5E /* LichAmWidgetExtension */;
