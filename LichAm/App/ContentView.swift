@@ -34,21 +34,61 @@ struct ContentView: View {
                     }
                     
                     let specialDay = HolidayManager.isSpecialLunarDay(viewModel.lunarDate)
-                
+                    if specialDay.isSpecial {
+                        VStack(alignment: .leading, spacing: 12) {
+
+                            HStack(spacing: 8) {
+                                Image(systemName: "sparkles")
+                                    .foregroundColor(.yellow)
+                                    .font(.title3)
+
+                                Text("Ngày đặc biệt")
+                                    .font(.system(size: 18, weight: .bold, design: .serif))
+                                    .foregroundColor(.red)
+                                Spacer()
+                            }
+
+                            Text(specialDay.name)
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.red.opacity(0.8))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.red.opacity(0.08))
+                                )
+
+                        }
+                        .padding(20)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.white)
+                                .shadow(color: Color.red.opacity(0.1), radius: 8, x: 0, y: 5)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(
+                                            LinearGradient(
+                                                colors: [
+                                                    Color.red.opacity(0.4),
+                                                    Color.orange.opacity(0.3)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ),
+                                            lineWidth: 2
+                                        )
+                                )
+                        )
+                        .transition(.scale.combined(with: .opacity))
+                    }
                     if !viewModel.todayHolidays.isEmpty {
                         TraditionalHolidaysSectionView(
                             selectedHoliday: $selectedHoliday,
                             showCalendarExport: $showCalendarExport
                         )
                         .transition(.scale.combined(with: .opacity))
-                    } else {
-                        if specialDay.isSpecial {
-                            Divider()
-                            Text("Ngày đặc biệt")
-                            Text(specialDay.name)
-                        }
                     }
-                    
                     AuspiciousHoursView(selectedDate: viewModel.selectedDate, showInauspicious: false)
                         .id(viewModel.selectedDate)
                     

@@ -77,8 +77,6 @@ struct AuspiciousHoursView: View {
 
     private var headerView: some View {
         HStack {
-            Text("⏰")
-                .font(.headline)
             VStack(alignment: .leading, spacing: 2) {
                 Text("Giờ Hoàng Đạo")
                     .font(.system(size: 16, weight: .semibold))

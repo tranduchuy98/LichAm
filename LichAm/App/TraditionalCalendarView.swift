@@ -131,11 +131,11 @@ struct TraditionalCalendarDayCell: View {
                 VStack(spacing: 4) {
                     Text("\(components.day!)")
                         .font(.system(size: 16, weight: viewModel.isToday(date) ? .bold : .semibold))
-                        .foregroundColor(getForegroundColor())
+                        .foregroundColor((lunarDate.day == 1 || lunarDate.day == 15 ) ? .red : getForegroundColor())
                     
                     Text("\(lunarDate.day)")
                         .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(getForegroundColor().opacity(0.7))
+                        .foregroundColor((lunarDate.day == 1 || lunarDate.day == 15 ) ? .red.opacity(0.7) : getForegroundColor().opacity(0.7))
                     
                     if viewModel.hasHoliday(date) {
                         Text("🏮")
@@ -147,7 +147,7 @@ struct TraditionalCalendarDayCell: View {
                 .background(
                     ZStack {
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(getBackgroundColor())
+                            .fill((lunarDate.day == 1 || lunarDate.day == 15 ) ? .red.opacity(0.15) : getBackgroundColor())
                         
                         if viewModel.isSelected(date) {
                             RoundedRectangle(cornerRadius: 12)
