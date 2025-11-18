@@ -13,6 +13,8 @@ struct TraditionalCalendarView: View {
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 7)
     let weekdays = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
+    let ontapDate: () -> Void
+    let ontapEvent: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -30,16 +32,21 @@ struct TraditionalCalendarView: View {
                 
                 Spacer()
                 
-                HStack(spacing: 8) {
-                    Text(viewModel.currentMonth, formatter: monthYearFormatter)
-                        .font(.system(size: 20, weight: .bold, design: .serif))
-                        .foregroundColor(.red)
+                Button {
+                    ontapDate()
+                } label: {
+                    HStack(spacing: 8) {
+                        Text(vietnameseMonthYear(from: viewModel.currentMonth))
+                            .font(.system(size: 20, weight: .bold, design: .serif))
+                            .foregroundColor(.red)
+                    }
+                    .id(viewModel.currentMonth)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal: .move(edge: .leading).combined(with: .opacity)
+                    ))
                 }
-                .id(viewModel.currentMonth)
-                .transition(.asymmetric(
-                    insertion: .move(edge: .trailing).combined(with: .opacity),
-                    removal: .move(edge: .leading).combined(with: .opacity)
-                ))
+
                 
                 Spacer()
                 
@@ -77,6 +84,11 @@ struct TraditionalCalendarView: View {
                 ForEach(viewModel.getDaysInMonth(), id: \.self) { date in
                     TraditionalCalendarDayCell(date: date)
                         .transition(.scale.combined(with: .opacity))
+                        .contextMenu {
+                            Button(action: { ontapEvent()}) {
+                                Label("Tạo sự kiện", systemImage: "calendar.badge.clock")
+                            }
+                        }
                 }
             }
             .padding(.horizontal, 4)
@@ -107,6 +119,16 @@ struct TraditionalCalendarView: View {
         formatter.dateFormat = "MMMM yyyy"
         formatter.locale = Locale(identifier: "vi_VN")
         return formatter
+    }
+    
+    private func vietnameseMonthYear(from date: Date) -> String {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.month, .year], from: date)
+        
+        let month = components.month ?? 1
+        let year = components.year ?? 2025
+        
+        return "Tháng \(month) \(year)"
     }
 }
 

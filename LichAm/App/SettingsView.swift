@@ -13,28 +13,6 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Form {
-                // Appearance Section
-                Section {
-                    Toggle(isOn: Binding(
-                        get: { viewModel.isDarkMode },
-                        set: { _ in
-                            
-                            viewModel.toggleDarkMode()
-                            dismiss()
-                        }
-                    )) {
-                        HStack {
-                            Image(systemName: viewModel.isDarkMode ? "moon.fill" : "sun.max.fill")
-                                .foregroundColor(viewModel.isDarkMode ? .purple : .orange)
-                                .frame(width: 28)
-                            
-                            Text("Chế độ tối")
-                        }
-                    }
-                } header: {
-                    Label("Hiển thị", systemImage: "paintbrush.fill")
-                }
-                
                 // Calendar Integration Section
                 Section {
                     HStack {
@@ -369,11 +347,3 @@ struct AboutFeatureRow: View {
     }
 }
 
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        SettingsView()
-            .environmentObject(CalendarViewModel())
-            .environmentObject(NotificationManager())
-            .environmentObject(CalendarIntegrationManager())
-    }
-}

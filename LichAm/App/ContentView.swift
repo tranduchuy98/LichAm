@@ -20,11 +20,14 @@ struct ContentView: View {
                         .transition(.scale.combined(with: .opacity))
                     
                     // Date Picker Button - IMPROVED WITH LUNAR DATE
-                    DatePickerButton(showDatePicker: $showDatePicker)
+//                    DatePickerButton(showDatePicker: $showDatePicker)
                     
                     // Traditional Calendar
-                    TraditionalCalendarView()
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                    TraditionalCalendarView() {
+                        showDatePicker = true
+                    } ontapEvent: {
+                        showEventsList = true
+                    }.transition(.move(edge: .top).combined(with: .opacity))
                     
                     // Events Section
                     if eventManager.hasEvents(for: viewModel.selectedDate) {
@@ -35,8 +38,6 @@ struct ContentView: View {
                     
                     let specialDay = HolidayManager.isSpecialLunarDay(viewModel.lunarDate)
                     if specialDay.isSpecial {
-                        VStack(alignment: .leading, spacing: 12) {
-
                             HStack(spacing: 8) {
                                 Image(systemName: "sparkles")
                                     .foregroundColor(.yellow)
@@ -46,18 +47,15 @@ struct ContentView: View {
                                     .font(.system(size: 18, weight: .bold, design: .serif))
                                     .foregroundColor(.red)
                                 Spacer()
-                            }
-
-                            Text(specialDay.name)
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.red.opacity(0.8))
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.red.opacity(0.08))
-                                )
-
+                                Text(specialDay.name)
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.red.opacity(0.8))
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.red.opacity(0.08))
+                                    )
                         }
                         .padding(20)
                         .frame(maxWidth: .infinity)
@@ -109,7 +107,6 @@ struct ContentView: View {
                         viewModel.goToToday()
                     }) {
                         HStack(spacing: 4) {
-                            Image(systemName: "calendar.circle.fill")
                             Text("Hôm nay")
                                 .font(.subheadline)
                         }
@@ -301,13 +298,9 @@ struct DatePickerSheet: View {
             VStack(spacing: 24) {
                 // Traditional decoration
                 HStack(spacing: 8) {
-                    Text("🏮")
-                        .font(.title)
                     Text("Chọn Ngày")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.red)
-                    Text("🏮")
-                        .font(.title)
                 }
                 .padding(.top, 20)
                 
@@ -474,6 +467,9 @@ struct TraditionalHeaderView: View {
     var body: some View {
         VStack(spacing: 16) {
             // Solar date with traditional styling
+            Text("Dương lịch")
+                .font(.system(size: 26, weight: .bold, design: .serif))
+                .foregroundColor(.red)
             Text(formatVietnameseDate(viewModel.selectedDate))
                 .font(.system(size: 26, weight: .bold, design: .serif))
                 .foregroundColor(.red)
@@ -485,11 +481,10 @@ struct TraditionalHeaderView: View {
             
             // Lunar date card with traditional red/gold theme
             VStack(spacing: 14) {
+                Text("Âm lịch")
+                    .font(.system(size: 26, weight: .bold, design: .serif))
+                    .foregroundColor(.white)
                 HStack {
-                    Image(systemName: "moon.stars.fill")
-                        .font(.title2)
-                        .foregroundColor(.yellow)
-                    
                     Text("Ngày \(viewModel.lunarDate.displayString)")
                         .font(.system(size: 20, weight: .bold, design: .serif))
                         .foregroundColor(.white)

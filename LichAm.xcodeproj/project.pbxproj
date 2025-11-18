@@ -481,6 +481,7 @@
 				INFOPLIST_FILE = LichAmWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = LichAmWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UIUserInterfaceStyle = light;
 				IPHONEOS_DEPLOYMENT_TARGET = 15;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -510,6 +511,7 @@
 				INFOPLIST_FILE = LichAmWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = LichAmWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UIUserInterfaceStyle = light;
 				IPHONEOS_DEPLOYMENT_TARGET = 15;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
