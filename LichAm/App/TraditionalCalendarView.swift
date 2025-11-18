@@ -10,6 +10,7 @@ import SwiftUI
 
 struct TraditionalCalendarView: View {
     @EnvironmentObject var viewModel: CalendarViewModel
+    @EnvironmentObject var eventManager: EventManager // Added for event indicators
     
     let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 7)
     let weekdays = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
@@ -136,6 +137,7 @@ struct TraditionalCalendarView: View {
 
 struct TraditionalCalendarDayCell: View {
     @EnvironmentObject var viewModel: CalendarViewModel
+    @EnvironmentObject var eventManager: EventManager // Added for event indicators
     let date: Date?
     @State private var isPressed = false
     
@@ -144,6 +146,7 @@ struct TraditionalCalendarDayCell: View {
             let calendar = Calendar.current
             let components = calendar.dateComponents([.year, .month, .day], from: date)
             let lunarDate = viewModel.getLunarDateForDate(date)
+            let hasEvents = eventManager.hasEvents(for: date) // Check for events
             
             Button(action: {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -159,9 +162,19 @@ struct TraditionalCalendarDayCell: View {
                         .font(.system(size: 10, weight: .medium))
                         .foregroundColor((lunarDate.day == 1 || lunarDate.day == 15 ) ? .red.opacity(0.7) : getForegroundColor().opacity(0.7))
                     
-                    if viewModel.hasHoliday(date) {
-                        Text("🏮")
-                            .font(.system(size: 8))
+                    // Event/Holiday indicators
+                    HStack(spacing: 2) {
+                        if viewModel.hasHoliday(date) {
+                            Text("🏮")
+                                .font(.system(size: 8))
+                        }
+                        
+                        // Red dot for events
+                        if hasEvents {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 6, height: 6)
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity)

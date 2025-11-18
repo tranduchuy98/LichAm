@@ -13,7 +13,7 @@ struct EventCreationView: View {
     @State private var hasReminder: Bool = false
     @State private var reminderMinutes: Int = 30
     @State private var selectedColor: EventColor = .red
-    @State private var isLunarDateBased: Bool = false
+    @State private var isLunarDateBased: Bool = true
     @State private var repeatType: EventRepeatType = .never
     @State private var addToSystemCalendar: Bool = true
     
@@ -38,6 +38,8 @@ struct EventCreationView: View {
             _selectedColor = State(initialValue: event.color)
             _isLunarDateBased = State(initialValue: event.isLunarDateBased)
             _repeatType = State(initialValue: event.repeatType)
+            // Don't show the toggle when editing if already added to calendar
+            _addToSystemCalendar = State(initialValue: event.ekEventIdentifier == nil)
         } else {
             _startDate = State(initialValue: preselectedDate)
             _endDate = State(initialValue: preselectedDate.addingTimeInterval(3600))
@@ -147,28 +149,42 @@ struct EventCreationView: View {
                                 )
                             }
                         }
-                        .padding(.vertical, 8)
+                        .padding( 8)
                     }
                 } header: {
                     Label("Màu sắc", systemImage: "paintpalette.fill")
                 }
                 
-                // Calendar Integration
-                Section {
-                    Toggle("Thêm vào Lịch hệ thống", isOn: $addToSystemCalendar)
-                        .tint(.red)
-                    
-                    if addToSystemCalendar {
+                // Calendar Integration - Only show for new events or events not yet in system calendar
+                if editingEvent == nil || editingEvent?.ekEventIdentifier == nil {
+                    Section {
+                        Toggle("Thêm vào Lịch hệ thống", isOn: $addToSystemCalendar)
+                            .tint(.red)
+                        
+                        if addToSystemCalendar {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                Text("Sự kiện sẽ xuất hiện trong app Lịch")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    } header: {
+                        Label("Tích hợp", systemImage: "calendar.badge.plus")
+                    }
+                } else {
+                    Section {
                         HStack {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
-                            Text("Sự kiện sẽ xuất hiện trong app Lịch")
-                                .font(.caption)
+                            Text("Đã có trong Lịch hệ thống")
+                                .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
+                    } header: {
+                        Label("Tích hợp", systemImage: "calendar.badge.plus")
                     }
-                } header: {
-                    Label("Tích hợp", systemImage: "calendar.badge.plus")
                 }
             }
             .navigationTitle(editingEvent == nil ? "Tạo sự kiện" : "Sửa sự kiện")
@@ -219,8 +235,11 @@ struct EventCreationView: View {
             lunarMonth = lunarDate.month
         }
         
+        // Preserve existing ekEventIdentifier when editing
+        let existingIdentifier = editingEvent?.ekEventIdentifier
+        
         // Create or update event
-        let event = LichAmEvent(
+        var event = LichAmEvent(
             id: editingEvent?.id ?? UUID().uuidString,
             title: title,
             notes: notes.isEmpty ? nil : notes,
@@ -232,34 +251,49 @@ struct EventCreationView: View {
             isLunarDateBased: isLunarDateBased,
             lunarDay: lunarDay,
             lunarMonth: lunarMonth,
-            repeatType: repeatType
+            repeatType: repeatType,
+            ekEventIdentifier: existingIdentifier // Preserve existing identifier
         )
         
-        if editingEvent == nil {
-            eventManager.addEvent(event)
+        // Add to system calendar if requested and not already added
+        if addToSystemCalendar && existingIdentifier == nil {
+            addToSystemCalendarAction(event: event) { updatedEvent in
+                // Save with the updated identifier
+                if editingEvent == nil {
+                    eventManager.addEvent(updatedEvent)
+                } else {
+                    eventManager.updateEvent(updatedEvent)
+                }
+                dismiss()
+            }
         } else {
-            eventManager.updateEvent(event)
+            // Save without system calendar integration
+            if editingEvent == nil {
+                eventManager.addEvent(event)
+            } else {
+                eventManager.updateEvent(event)
+            }
+            dismiss()
         }
-        
-        // Add to system calendar if requested
-        if addToSystemCalendar {
-            addToSystemCalendarAction(event: event)
-        }
-        
-        dismiss()
     }
     
-    private func addToSystemCalendarAction(event: LichAmEvent) {
+    private func addToSystemCalendarAction(event: LichAmEvent, completion: @escaping (LichAmEvent) -> Void) {
         calendarIntegration.createEvent(
             title: "\(event.color.emoji) \(event.title)",
             date: event.startDate,
             notes: event.notes,
             isAllDay: event.isAllDay,
             duration: event.endDate.timeIntervalSince(event.startDate)
-        ) { success, error in
-            if !success {
-                print("Failed to add to system calendar: \(error?.localizedDescription ?? "Unknown error")")
+        ) { success, eventIdentifier, error in
+            var updatedEvent = event
+            if success, let identifier = eventIdentifier {
+                // Store the actual EventKit identifier
+                updatedEvent.ekEventIdentifier = identifier
+                print("Event added to system calendar with ID: \(identifier)")
+            } else if let error = error {
+                print("Failed to add to system calendar: \(error.localizedDescription)")
             }
+            completion(updatedEvent)
         }
     }
 }

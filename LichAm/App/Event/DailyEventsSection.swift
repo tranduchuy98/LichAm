@@ -5,7 +5,7 @@ struct DailyEventsSection: View {
     @EnvironmentObject var eventManager: EventManager
     @EnvironmentObject var viewModel: CalendarViewModel
     
-    @State private var showEventDetail: LichAmEvent?
+    @State private var showEventDetailId: String? // Changed to ID
     @State private var showCreateEvent = false
     
     private var todayEvents: [LichAmEvent] {
@@ -17,9 +17,6 @@ struct DailyEventsSection: View {
             // Header with create button
             HStack {
                 HStack(spacing: 8) {
-                    Text("📅")
-                        .font(.title3)
-                    
                     Text("Sự kiện hôm nay")
                         .font(.system(size: 18, weight: .bold, design: .serif))
                         .foregroundColor(.red)
@@ -65,7 +62,10 @@ struct DailyEventsSection: View {
                 .environmentObject(eventManager)
                 .environmentObject(CalendarIntegrationManager())
         }
-        .sheet(item: $showEventDetail) { event in
+        .sheet(item: Binding(
+            get: { showEventDetailId.flatMap { id in todayEvents.first(where: { $0.id == id }) } },
+            set: { showEventDetailId = $0?.id }
+        )) { event in
             EventDetailView(event: event)
                 .environmentObject(eventManager)
                 .environmentObject(CalendarIntegrationManager())
@@ -105,7 +105,7 @@ struct DailyEventsSection: View {
         VStack(spacing: 12) {
             ForEach(todayEvents) { event in
                 CompactEventCard(event: event) {
-                    showEventDetail = event
+                    showEventDetailId = event.id
                 }
             }
         }
@@ -194,6 +194,16 @@ struct CompactEventCard: View {
                                     .font(.system(size: 10))
                             }
                             .foregroundColor(.orange)
+                        }
+                        
+                        if event.ekEventIdentifier != nil {
+                            HStack(spacing: 3) {
+                                Image(systemName: "calendar")
+                                    .font(.system(size: 9))
+                                Text("Lịch")
+                                    .font(.system(size: 10))
+                            }
+                            .foregroundColor(.green)
                         }
                     }
                     

@@ -10,7 +10,7 @@ struct ContentView: View {
     @State private var showCalendarExport = false
     @State private var showDatePicker = false
     @State private var showEventsList = false
-    
+    @State private var showCreateEvent = false
     var body: some View {
         NavigationView {
             ScrollView(.vertical, showsIndicators: false) {
@@ -26,7 +26,7 @@ struct ContentView: View {
                     TraditionalCalendarView() {
                         showDatePicker = true
                     } ontapEvent: {
-                        showEventsList = true
+                        showCreateEvent = true
                     }.transition(.move(edge: .top).combined(with: .opacity))
                     
                     // Events Section
@@ -39,10 +39,6 @@ struct ContentView: View {
                     let specialDay = HolidayManager.isSpecialLunarDay(viewModel.lunarDate)
                     if specialDay.isSpecial {
                             HStack(spacing: 8) {
-                                Image(systemName: "sparkles")
-                                    .foregroundColor(.yellow)
-                                    .font(.title3)
-
                                 Text("Ngày đặc biệt")
                                     .font(.system(size: 18, weight: .bold, design: .serif))
                                     .foregroundColor(.red)
@@ -156,6 +152,11 @@ struct ContentView: View {
                     .environmentObject(eventManager)
                     .environmentObject(calendarIntegration)
                     .environmentObject(viewModel)
+            }
+            .sheet(isPresented: $showCreateEvent) {
+                EventCreationView(preselectedDate: viewModel.selectedDate)
+                    .environmentObject(eventManager)
+                    .environmentObject(CalendarIntegrationManager())
             }
         }
         .navigationViewStyle(.stack)
@@ -342,15 +343,12 @@ struct DatePickerSheet: View {
                     HStack(spacing: 16) {
                         VStack(spacing: 6) {
                             HStack(spacing: 6) {
-                                Image(systemName: "moon.fill")
-                                    .font(.caption)
-                                    .foregroundColor(.red)
                                 Text("Âm lịch")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
                             
-                            Text("\(lunarDate.day)/\(lunarDate.month)/\(lunarDate.year)")
+                            Text(verbatim:"\(lunarDate.day)/\(lunarDate.month)/\(lunarDate.year)")
                                 .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(.red)
                         }
@@ -362,9 +360,6 @@ struct DatePickerSheet: View {
                         
                         VStack(spacing: 6) {
                             HStack(spacing: 6) {
-                                Image(systemName: "star.circle")
-                                    .font(.caption)
-                                    .foregroundColor(.orange)
                                 Text("Can Chi")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
@@ -486,7 +481,7 @@ struct TraditionalHeaderView: View {
                     .foregroundColor(.white)
                 HStack {
                     Text("Ngày \(viewModel.lunarDate.displayString)")
-                        .font(.system(size: 20, weight: .bold, design: .serif))
+                        .font(.system(size: 26, weight: .bold, design: .serif))
                         .foregroundColor(.white)
                 }
                 

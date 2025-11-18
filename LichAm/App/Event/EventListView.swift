@@ -6,7 +6,8 @@ struct EventListView: View {
     @EnvironmentObject var viewModel: CalendarViewModel
     
     @State private var showCreateEvent = false
-    @State private var selectedEvent: LichAmEvent?
+    @State private var selectedEvent: LichAmEvent? = nil
+    
     @State private var showEventDetail = false
     
     var body: some View {
@@ -103,7 +104,8 @@ struct EventListView: View {
                         
                         ForEach(eventManager.getUpcomingEvents()) { event in
                             EventCard(event: event) {
-                                selectedEvent = event
+                                showEventDetail = true
+                                selectedEvent = eventManager.events.first(where: { $0.id == event.id })
                             }
                             .padding(.horizontal, 16)
                         }
@@ -120,7 +122,8 @@ struct EventListView: View {
                     
                     ForEach(eventManager.events.sorted(by: { $0.startDate > $1.startDate })) { event in
                         EventCard(event: event) {
-                            selectedEvent = event
+                            showEventDetail = true
+                            selectedEvent = eventManager.events.first(where: { $0.id == event.id })
                         }
                         .padding(.horizontal, 16)
                     }

@@ -65,12 +65,13 @@ struct AuspiciousHoursView: View {
     }
 
     private func filteredHourList() -> [String] {
-        if showInauspicious {
-            return allHourChis
-        } else {
-            // only show auspicious hours, in original order
-            return allHourChis.filter { auspiciousHours.contains($0) }
-        }
+        return allHourChis
+//        if showInauspicious {
+//            return allHourChis
+//        } else {
+//            // only show auspicious hours, in original order
+//            return allHourChis.filter { auspiciousHours.contains($0) }
+//        }
     }
 
     // MARK: - Header & Legend
@@ -79,7 +80,8 @@ struct AuspiciousHoursView: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Giờ Hoàng Đạo")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: 16, weight: .bold, design: .serif))
+                    .foregroundColor(.red)
                 Text("Ngày: \(dayChi)")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -152,17 +154,13 @@ private struct AuspiciousHourRow: View {
             Spacer()
 
             if isAuspicious {
-                Text("Tốt")
+                Text("Giờ Tốt")
                     .font(.caption2)
                     .bold()
+                    .foregroundColor(.red)
                     .padding(.vertical, 6)
                     .padding(.horizontal, 10)
                     .background(RoundedRectangle(cornerRadius: 10).foregroundColor(Color.red.opacity(0.12)))
-            } else {
-                // minimal icon for inauspicious
-                Image(systemName: "moon.fill")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
             }
         }
         .padding(.horizontal, 12)

@@ -5,33 +5,65 @@ struct EventDetailView: View {
     @EnvironmentObject var eventManager: EventManager
     @EnvironmentObject var calendarIntegration: CalendarIntegrationManager
     
-    let event: LichAmEvent
+    let eventId: String // Use ID instead of the event itself for proper refresh
+    
+    // Computed property to get the latest event data
+    private var event: LichAmEvent? {
+        eventManager.events.first(where: { $0.id == eventId })
+    }
     
     @State private var showEditSheet = false
     @State private var showDeleteAlert = false
     @State private var showExportAlert = false
     
+    // Convenience initializer that accepts an event
+    init(event: LichAmEvent) {
+        self.eventId = event.id
+    }
+    
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Header with color
-                    headerView
-                    
-                    // Main Info Card
-                    infoCard
-                    
-                    // Actions
-                    actionsSection
-                    
-                    Spacer(minLength: 40)
+            Group {
+                if let event = event {
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            // Header with color
+                            headerView(event: event)
+                            
+                            // Main Info Card
+                            infoCard(event: event)
+                            
+                            // Actions
+                            actionsSection(event: event)
+                            
+                            Spacer(minLength: 40)
+                        }
+                        .padding(16)
+                    }
+                    .background(
+                        TraditionalBackground()
+                            .ignoresSafeArea()
+                    )
+                } else {
+                    // Event was deleted
+                    VStack(spacing: 20) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 60))
+                            .foregroundColor(.orange)
+                        
+                        Text("Sự kiện không tồn tại")
+                            .font(.headline)
+                        
+                        Button("Đóng") {
+                            dismiss()
+                        }
+                        .padding()
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
                 }
-                .padding(16)
             }
-            .background(
-                TraditionalBackground()
-                    .ignoresSafeArea()
-            )
             .navigationTitle("Chi tiết sự kiện")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -42,9 +74,11 @@ struct EventDetailView: View {
                 }
             }
             .sheet(isPresented: $showEditSheet) {
-                EventCreationView(editingEvent: event)
-                    .environmentObject(eventManager)
-                    .environmentObject(calendarIntegration)
+                if let event = event {
+                    EventCreationView(editingEvent: event)
+                        .environmentObject(eventManager)
+                        .environmentObject(calendarIntegration)
+                }
             }
             .alert("Xóa sự kiện", isPresented: $showDeleteAlert) {
                 Button("Hủy", role: .cancel) {}
@@ -65,15 +99,15 @@ struct EventDetailView: View {
         }
     }
     
-    private var headerView: some View {
+    private func headerView(event: LichAmEvent) -> some View {
         VStack(spacing: 16) {
             // Color indicator
             Circle()
                 .fill(event.color.colorValue)
-                .frame(width: 80, height: 80)
+                .frame(width: 40, height: 40)
                 .overlay(
                     Text(event.color.emoji)
-                        .font(.system(size: 40))
+                        .font(.system(size: 20))
                 )
                 .shadow(color: event.color.colorValue.opacity(0.4), radius: 20, x: 0, y: 10)
             
@@ -87,7 +121,7 @@ struct EventDetailView: View {
         .padding(.vertical, 20)
     }
     
-    private var infoCard: some View {
+    private func infoCard(event: LichAmEvent) -> some View {
         VStack(spacing: 0) {
             // Date & Time
             InfoRow(
@@ -103,7 +137,7 @@ struct EventDetailView: View {
                 icon: event.isAllDay ? "sun.max" : "clock",
                 iconColor: .orange,
                 title: "Thời gian",
-                value: formatTime()
+                value: formatTime(event: event)
             )
             
             if event.repeatType != .never {
@@ -153,6 +187,7 @@ struct EventDetailView: View {
                             .font(.subheadline)
                             .fontWeight(.semibold)
                             .foregroundColor(.secondary)
+                        Spacer()
                     }
                     
                     Text(notes)
@@ -171,7 +206,7 @@ struct EventDetailView: View {
         )
     }
     
-    private var actionsSection: some View {
+    private func actionsSection(event: LichAmEvent) -> some View {
         VStack(spacing: 12) {
             // Edit Button
             ActionButton(
@@ -183,7 +218,7 @@ struct EventDetailView: View {
                 }
             )
             
-            // Export to Calendar
+            // Export to Calendar - Only show if NOT already in system calendar
             if event.ekEventIdentifier == nil {
                 ActionButton(
                     icon: "calendar.badge.plus",
@@ -228,7 +263,7 @@ struct EventDetailView: View {
         return formatter.string(from: date)
     }
     
-    private func formatTime() -> String {
+    private func formatTime(event: LichAmEvent) -> String {
         if event.isAllDay {
             return "Cả ngày"
         }
@@ -256,24 +291,35 @@ struct EventDetailView: View {
     }
     
     private func deleteEvent() {
+        guard let event = event else { return }
         eventManager.deleteEvent(event)
         dismiss()
     }
     
     private func exportToCalendar() {
+        guard let event = event else { return }
+        
+        // Double-check that it's not already in the calendar
+        guard event.ekEventIdentifier == nil else {
+            print("Event already in system calendar, skipping export")
+            return
+        }
+        
         calendarIntegration.createEvent(
             title: "\(event.color.emoji) \(event.title)",
             date: event.startDate,
             notes: event.notes,
             isAllDay: event.isAllDay,
             duration: event.endDate.timeIntervalSince(event.startDate)
-        ) { success, error in
-            if success {
-                // Update event with EK identifier
+        ) { success, eventIdentifier, error in
+            if success, let identifier = eventIdentifier {
+                // Update event with the actual EK identifier
                 var updatedEvent = event
-                // In real implementation, you'd get the actual EK identifier
-                updatedEvent.ekEventIdentifier = UUID().uuidString
+                updatedEvent.ekEventIdentifier = identifier
                 eventManager.updateEvent(updatedEvent)
+                print("Event exported to system calendar with ID: \(identifier)")
+            } else if let error = error {
+                print("Failed to export to system calendar: \(error.localizedDescription)")
             }
         }
     }

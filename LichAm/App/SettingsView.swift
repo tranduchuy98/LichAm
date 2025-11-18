@@ -13,7 +13,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Form {
-                // Calendar Integration Section
+                                                                                                           // Calendar Integration Section
                 Section {
                     HStack {
                         Image(systemName: "calendar.badge.checkmark")
@@ -119,22 +119,6 @@ struct SettingsView: View {
                             Image(systemName: "chevron.right")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                        }
-                    }
-                    
-                    Link(destination: URL(string: "https://github.com")!) {
-                        HStack {
-                            Image(systemName: "link.circle.fill")
-                                .foregroundColor(.blue)
-                                .frame(width: 28)
-                            
-                            Text("Mã nguồn")
-                            
-                            Spacer()
-                            
-                            Image(systemName: "arrow.up.forward.square")
-                                .font(.caption)
-                                .foregroundColor(.blue)
                         }
                     }
                 } header: {
