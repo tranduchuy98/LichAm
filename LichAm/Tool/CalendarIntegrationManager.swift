@@ -30,20 +30,21 @@ class CalendarIntegrationManager: ObservableObject {
         }
     }
     
+    // UPDATED: Now returns the actual EventKit identifier
     func createEvent(
         title: String,
         date: Date,
         notes: String? = nil,
         isAllDay: Bool = true,
         duration: TimeInterval = 3600,
-        completion: @escaping (Bool, Error?) -> Void
+        completion: @escaping (Bool, String?, Error?) -> Void
     ) {
         guard hasCalendarAccess else {
             requestCalendarAccess { [weak self] granted, error in
                 if granted {
                     self?.createEvent(title: title, date: date, notes: notes, isAllDay: isAllDay, duration: duration, completion: completion)
                 } else {
-                    completion(false, error)
+                    completion(false, nil, error)
                 }
             }
             return
@@ -59,16 +60,17 @@ class CalendarIntegrationManager: ObservableObject {
         
         do {
             try eventStore.save(event, span: .thisEvent)
-            completion(true, nil)
+            // Return the actual EventKit identifier
+            completion(true, event.eventIdentifier, nil)
         } catch {
-            completion(false, error)
+            completion(false, nil, error)
         }
     }
     
     func createHolidayEvent(
         holiday: VietnameseHoliday,
         date: Date,
-        completion: @escaping (Bool, Error?) -> Void
+        completion: @escaping (Bool, String?, Error?) -> Void
     ) {
         let title = "\(holiday.emoji) \(holiday.name)"
         let notes = """
@@ -89,7 +91,7 @@ class CalendarIntegrationManager: ObservableObject {
     func createLunarDateReminder(
         lunarDate: LunarDate,
         solarDate: Date,
-        completion: @escaping (Bool, Error?) -> Void
+        completion: @escaping (Bool, String?, Error?) -> Void
     ) {
         let title = "🌙 Ngày \(lunarDate.displayString)"
         let notes = "Âm lịch: \(lunarDate.displayString)"
