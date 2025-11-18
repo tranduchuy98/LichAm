@@ -103,24 +103,19 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    Button(action: {
-                        showAbout = true
-                    }) {
+                    NavigationLink(destination: HTMLFileView()) {
                         HStack {
-                            Image(systemName: "doc.text.fill")
+                            Image(systemName: "rectangle.fill.on.rectangle.fill")
                                 .foregroundColor(.blue)
                                 .frame(width: 28)
                             
-                            Text("Giới thiệu")
+                            Text("Hướng dẫn tạo Widget")
                                 .foregroundColor(.primary)
                             
                             Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
                         }
                     }
+                    
                 } header: {
                     Label("Thông tin", systemImage: "info.circle")
                 }
@@ -148,15 +143,27 @@ struct SettingsView: View {
                         description: "Thêm ngày lễ vào ứng dụng Lịch của bạn"
                     )
                     
+
+                    // ⭐ NEW – Widget ngoài màn hình
+                    FeatureGuideRow(
+                        icon: "rectangle.fill.on.rectangle.fill",
+                        iconColor: .cyan,
+                        title: "Widget lịch",
+                        description: "Hiển thị lịch Âm – Dương ngay ngoài màn hình chính và màn hình khoá"
+                    )
+
+                    // ⭐ NEW – Event nhắc nhở âm/dương
                     FeatureGuideRow(
                         icon: "bell.badge",
-                        iconColor: .orange,
-                        title: "Thông báo",
-                        description: "Nhận nhắc nhở về các ngày lễ, tết sắp tới"
+                        iconColor: .red,
+                        title: "Nhắc lịch Âm & Dương",
+                        description: "Tự động tạo thông báo nhắc nhở theo ngày Âm lịch và Dương lịch bạn chọn, nhấn giữ vào ngày trên lịch để tạo sự kiện"
                     )
-                } header: {
+                }
+                header: {
                     Label("Hướng dẫn sử dụng", systemImage: "lightbulb.fill")
                 }
+
             }
             .navigationTitle("Cài đặt")
             .navigationBarTitleDisplayMode(.inline)

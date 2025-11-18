@@ -108,6 +108,10 @@ struct SmallWidgetView: View {
         )
     }
     
+    private var yearCanChi: String {
+        LunarCalendarCalculator.getCanChi(year: entry.lunarDate.year)
+    }
+    
     private var currentHour: String {
         let calendar = Calendar.current
         let hour = calendar.component(.hour, from: entry.date)
@@ -133,7 +137,7 @@ struct SmallWidgetView: View {
         if #available(iOS 17.0, *) {
             VStack(spacing: 6) {
                 // Can Chi at top
-                Text(dayChi)
+                Text(yearCanChi)
                     .font(.system(size: 10, weight: .semibold, design: .serif))
                     .foregroundColor(.white)
                     .padding(.horizontal, 10)
@@ -142,23 +146,19 @@ struct SmallWidgetView: View {
                 
                 // LARGE LUNAR DATE - PRIMARY FOCUS
                 HStack(spacing: 6) {
-                    Image(systemName: "moon.fill")
-                        .font(.title2)
-                        .foregroundColor(.red.opacity(0.8))
-                    
                     VStack(spacing: 1) {
                         Text("\(entry.lunarDate.day)")
                             .font(.system(size: 48, weight: .bold, design: .rounded))
                             .foregroundColor(.red)
                         
-                        Text("T\(entry.lunarDate.month)")
+                        Text("Tháng \(entry.lunarDate.month) \(entry.lunarDate.year)")
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundColor(.red.opacity(0.7))
                     }
                 }
                 
                 // Smaller solar date
-                Text("Dương: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
+                Text("Dương lịch: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(.primary.opacity(0.7))
                     .padding(.horizontal, 8)
@@ -167,15 +167,10 @@ struct SmallWidgetView: View {
                 
                 // AUSPICIOUS HOUR INDICATOR
                 HStack(spacing: 4) {
-                    Image(systemName: isCurrentHourAuspicious ? "star.fill" : "moon.stars.fill")
-                        .font(.system(size: 9))
-                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .gray)
-                    
-                    Text(currentHour)
+                    Text("Giờ " + currentHour)
                         .font(.system(size: 10, weight: .bold, design: .serif))
                         .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
-                    
-                    Text(isCurrentHourAuspicious ? "Tốt" : "Hắc")
+                    Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
                         .font(.system(size: 8, weight: .semibold))
                         .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
                 }
@@ -211,7 +206,7 @@ struct SmallWidgetView: View {
         } else {
             // iOS 16 fallback
             VStack(spacing: 6) {
-                Text(dayChi)
+                Text(yearCanChi)
                     .font(.system(size: 10, weight: .semibold, design: .serif))
                     .foregroundColor(.white)
                     .padding(.horizontal, 10)
@@ -219,21 +214,18 @@ struct SmallWidgetView: View {
                     .background(Capsule().fill(Color.red))
                 
                 HStack(spacing: 6) {
-                    Image(systemName: "moon.fill")
-                        .font(.title2)
-                        .foregroundColor(.red.opacity(0.8))
-                    
                     VStack(spacing: 1) {
                         Text("\(entry.lunarDate.day)")
                             .font(.system(size: 48, weight: .bold, design: .rounded))
                             .foregroundColor(.red)
-                        Text("T\(entry.lunarDate.month)")
+                        Text(verbatim:"Tháng \(entry.lunarDate.month) \(entry.lunarDate.year)")
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundColor(.red.opacity(0.7))
+                        
                     }
                 }
                 
-                Text("Dương: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
+                Text("Dương lịch: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(.primary.opacity(0.7))
                     .padding(.horizontal, 8)
@@ -241,13 +233,10 @@ struct SmallWidgetView: View {
                     .background(RoundedRectangle(cornerRadius: 6).fill(Color.red.opacity(0.1)))
                 
                 HStack(spacing: 4) {
-                    Image(systemName: isCurrentHourAuspicious ? "star.fill" : "moon.stars.fill")
-                        .font(.system(size: 9))
-                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .gray)
-                    Text(currentHour)
+                    Text("Giờ " + currentHour)
                         .font(.system(size: 10, weight: .bold, design: .serif))
                         .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
-                    Text(isCurrentHourAuspicious ? "Tốt" : "Hắc")
+                    Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
                         .font(.system(size: 8, weight: .semibold))
                         .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
                 }
@@ -298,78 +287,86 @@ struct MediumWidgetView: View {
             year: components.year!
         )
     }
+    
+    
+    private var yearCanChi: String {
+        LunarCalendarCalculator.getCanChi(year: entry.lunarDate.year)
+    }
+    
+    private var currentHour: String {
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: entry.date)
+        let chiOrder = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"]
+        
+        // Calculate chi index for current hour
+        // Tý: 23-1, Sửu: 1-3, Dần: 3-5, etc.
+        let chiIndex: Int
+        if hour == 23 || hour == 0 {
+            chiIndex = 0 // Tý
+        } else {
+            chiIndex = (hour + 1) / 2
+        }
+        
+        return chiOrder[chiIndex]
+    }
+    
+    private var isCurrentHourAuspicious: Bool {
+        entry.auspiciousHours.contains(currentHour)
+    }
 
     var body: some View {
         if #available(iOS 17.0, *) {
             HStack(spacing: 16) {
-                // Left side - Large lunar day number
                 VStack(spacing: 6) {
                     HStack(spacing: 8) {
-                        Image(systemName: "moon.fill")
-                            .font(.title2)
-                            .foregroundColor(.red)
-                        
                         VStack(spacing: 2) {
                             Text("\(entry.lunarDate.day)")
                                 .font(.system(size: 48, weight: .bold, design: .rounded))
                                 .foregroundColor(.red)
                             
-                            Text("Tháng \(entry.lunarDate.month)")
+                            Text(verbatim:"Tháng \(entry.lunarDate.month) \(entry.lunarDate.year)")
                                 .font(.system(size: 11, weight: .semibold))
                                 .foregroundColor(.red.opacity(0.7))
                         }
                     }
                     
-                    Text("Âm lịch")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.secondary)
+                    HStack(spacing: 4) {
+                        Text("Giờ " + currentHour)
+                            .font(.system(size: 10, weight: .bold, design: .serif))
+                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                        Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
+                            .font(.system(size: 8, weight: .semibold))
+                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(isCurrentHourAuspicious ? Color.yellow.opacity(0.2) : Color.gray.opacity(0.1))
+                    )
                 }
                 .frame(width: 130)
                 
-                Divider()
-                    .frame(height: 80)
+                Divider().frame(height: 80)
                 
-                // Right side - Additional info
                 VStack(alignment: .leading, spacing: 10) {
-                    // Month and year
-                    Text(entry.date, formatter: monthYearFormatter)
+                    Text("Dương lịch")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(.secondary)
+                    Text( "\(Calendar.current.component(.day, from: entry.date)) " + vietnameseMonthYear(from: entry.date))
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.primary)
-                    
-                    // Solar date
-                    HStack(spacing: 6) {
-                        Image(systemName: "sun.max.fill")
-                            .foregroundColor(.orange)
-                            .font(.caption)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Dương lịch")
-                                .font(.system(size: 9, weight: .medium))
-                                .foregroundColor(.secondary)
-                            HStack(spacing: 2) {
-                                Text("\(Calendar.current.component(.day, from: entry.date))")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(.primary)
-                                Text("/")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(.secondary)
-                                Text("\(Calendar.current.component(.month, from: entry.date))")
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundColor(.primary)
-                            }
-                        }
-                    }
-                    
-                    // Can Chi
-                    HStack(spacing: 6) {
-                        Image(systemName: "star.circle")
-                            .foregroundColor(.red)
-                            .font(.caption)
-                        Text(dayChi)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Ngày " + dayChi)
                             .font(.system(size: 11, weight: .semibold, design: .serif))
                             .foregroundColor(.primary)
+                            .fixedSize(horizontal: true, vertical: false)
+                        Text("Năm " + yearCanChi)
+                            .font(.system(size: 11, weight: .semibold, design: .serif))
+                            .foregroundColor(.primary)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
                     
-                    // Holiday
                     if !entry.holidays.isEmpty {
                         HStack(spacing: 6) {
                             Text(entry.holidays[0].emoji)
@@ -413,63 +410,52 @@ struct MediumWidgetView: View {
             HStack(spacing: 16) {
                 VStack(spacing: 6) {
                     HStack(spacing: 8) {
-                        Image(systemName: "moon.fill")
-                            .font(.title2)
-                            .foregroundColor(.red)
-                        
                         VStack(spacing: 2) {
                             Text("\(entry.lunarDate.day)")
                                 .font(.system(size: 48, weight: .bold, design: .rounded))
                                 .foregroundColor(.red)
                             
-                            Text("Tháng \(entry.lunarDate.month)")
+                            Text(verbatim:"Tháng \(entry.lunarDate.month) \(entry.lunarDate.year)")
                                 .font(.system(size: 11, weight: .semibold))
                                 .foregroundColor(.red.opacity(0.7))
                         }
                     }
                     
-                    Text("Âm lịch")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.secondary)
+                    HStack(spacing: 4) {
+                        Text("Giờ " + currentHour)
+                            .font(.system(size: 10, weight: .bold, design: .serif))
+                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                        Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
+                            .font(.system(size: 8, weight: .semibold))
+                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(isCurrentHourAuspicious ? Color.yellow.opacity(0.2) : Color.gray.opacity(0.1))
+                    )
                 }
                 .frame(width: 130)
                 
                 Divider().frame(height: 80)
                 
                 VStack(alignment: .leading, spacing: 10) {
-                    Text(entry.date, formatter: monthYearFormatter)
+                    Text("Dương lịch")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(.secondary)
+                    Text( "\(Calendar.current.component(.day, from: entry.date)) " + vietnameseMonthYear(from: entry.date))
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.primary)
-                    
-                    HStack(spacing: 6) {
-                        Image(systemName: "sun.max.fill")
-                            .foregroundColor(.orange)
-                            .font(.caption)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Dương lịch")
-                                .font(.system(size: 9, weight: .medium))
-                                .foregroundColor(.secondary)
-                            HStack(spacing: 2) {
-                                Text("\(Calendar.current.component(.day, from: entry.date))")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(.primary)
-                                Text("/")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(.secondary)
-                                Text("\(Calendar.current.component(.month, from: entry.date))")
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundColor(.primary)
-                            }
-                        }
-                    }
-                    
-                    HStack(spacing: 6) {
-                        Image(systemName: "star.circle")
-                            .foregroundColor(.red)
-                            .font(.caption)
-                        Text(dayChi)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Ngày " + dayChi)
                             .font(.system(size: 11, weight: .semibold, design: .serif))
                             .foregroundColor(.primary)
+                            .fixedSize(horizontal: true, vertical: false)
+                        Text("Năm " + yearCanChi)
+                            .font(.system(size: 11, weight: .semibold, design: .serif))
+                            .foregroundColor(.primary)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
                     
                     if !entry.holidays.isEmpty {
@@ -513,6 +499,16 @@ struct MediumWidgetView: View {
         formatter.locale = Locale(identifier: "vi_VN")
         return formatter
     }
+    
+    private func vietnameseMonthYear(from date: Date) -> String {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.month, .year], from: date)
+        
+        let month = components.month ?? 1
+        let year = components.year ?? 2025
+        
+        return "Tháng \(month) \(year)"
+    }
 }
 
 // MARK: - Large Widget View WITH AUSPICIOUS HOURS
@@ -532,13 +528,34 @@ struct LargeWidgetView: View {
             year: components.year!
         )
     }
+    
+    private var currentHour: String {
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: entry.date)
+        let chiOrder = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"]
+        
+        // Calculate chi index for current hour
+        // Tý: 23-1, Sửu: 1-3, Dần: 3-5, etc.
+        let chiIndex: Int
+        if hour == 23 || hour == 0 {
+            chiIndex = 0 // Tý
+        } else {
+            chiIndex = (hour + 1) / 2
+        }
+        
+        return chiOrder[chiIndex]
+    }
+    
+    private var isCurrentHourAuspicious: Bool {
+        entry.auspiciousHours.contains(currentHour)
+    }
 
     var body: some View {
         if #available(iOS 17.0, *) {
             VStack(spacing: 12) {
                 // Header with current date info
                 VStack(spacing: 8) {
-                    Text(entry.date, formatter: monthYearFormatter)
+                    Text(vietnameseMonthYear(from: entry.date))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.red)
                     
@@ -555,13 +572,28 @@ struct LargeWidgetView: View {
                         Divider().frame(height: 30)
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(dayChi)
+                            Text("Ngày " + dayChi)
                                 .font(.system(size: 11, weight: .semibold, design: .serif))
                                 .foregroundColor(.primary)
-                            Text(canChi)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                            Text("Năm " + canChi)
+                                .font(.system(size: 11, weight: .semibold, design: .serif))
+                                .foregroundColor(.primary)
                         }
+                        Divider().frame(height: 30)
+                        HStack(spacing: 4) {
+                            Text("Giờ " + currentHour)
+                                .font(.system(size: 10, weight: .bold, design: .serif))
+                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                            Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
+                                .font(.system(size: 8, weight: .semibold))
+                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(isCurrentHourAuspicious ? Color.yellow.opacity(0.2) : Color.gray.opacity(0.1))
+                        )
                     }
                 }
                 .padding(.horizontal)
@@ -613,7 +645,7 @@ struct LargeWidgetView: View {
             VStack(spacing: 12) {
                 // Header with current date info
                 VStack(spacing: 8) {
-                    Text(entry.date, formatter: monthYearFormatter)
+                    Text(vietnameseMonthYear(from: entry.date))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.red)
                     
@@ -637,6 +669,21 @@ struct LargeWidgetView: View {
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
+                        Divider().frame(height: 30)
+                        HStack(spacing: 4) {
+                            Text("Giờ " + currentHour)
+                                .font(.system(size: 10, weight: .bold, design: .serif))
+                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                            Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
+                                .font(.system(size: 8, weight: .semibold))
+                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(isCurrentHourAuspicious ? Color.yellow.opacity(0.2) : Color.gray.opacity(0.1))
+                        )
                     }
                 }
                 .padding(.horizontal)
@@ -692,6 +739,16 @@ struct LargeWidgetView: View {
         formatter.dateFormat = "MMMM yyyy"
         formatter.locale = Locale(identifier: "vi_VN")
         return formatter
+    }
+    
+    private func vietnameseMonthYear(from date: Date) -> String {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.month, .year], from: date)
+        
+        let month = components.month ?? 1
+        let year = components.year ?? 2025
+        
+        return "Tháng \(month) \(year)"
     }
 }
 
@@ -818,18 +875,35 @@ struct AccessoryRectangularView: View {
         LunarCalendarCalculator.getCanChi(year: entry.lunarDate.year)
     }
     
+    private var currentHour: String {
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: entry.date)
+        let chiOrder = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"]
+        
+        // Calculate chi index for current hour
+        // Tý: 23-1, Sửu: 1-3, Dần: 3-5, etc.
+        let chiIndex: Int
+        if hour == 23 || hour == 0 {
+            chiIndex = 0 // Tý
+        } else {
+            chiIndex = (hour + 1) / 2
+        }
+        
+        return chiOrder[chiIndex]
+    }
+    
+    private var isCurrentHourAuspicious: Bool {
+        entry.auspiciousHours.contains(currentHour)
+    }
+    
     var body: some View {
         if #available(iOSApplicationExtension 17.0, *) {
             VStack(alignment: .leading, spacing: 4) {
                 // Top row: Large lunar date
                 HStack(spacing: 6) {
-                    Image(systemName: "moon.fill")
-                        .font(.system(size: 12))
-                        .foregroundColor(.red)
-                    
                     HStack(spacing: 2) {
                         Text("\(entry.lunarDate.day)")
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .font(.system(size: 30, weight: .bold, design: .rounded))
                         Text("/")
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.secondary)
@@ -841,7 +915,7 @@ struct AccessoryRectangularView: View {
                     
                     // Solar date (smaller)
                     VStack(alignment: .trailing, spacing: 1) {
-                        Text("Dương")
+                        Text("Dương lịch")
                             .font(.system(size: 7))
                             .foregroundColor(.secondary)
                         HStack(spacing: 1) {
@@ -854,15 +928,16 @@ struct AccessoryRectangularView: View {
                     }
                 }
                 
-                // Bottom row: Can Chi and holiday
                 HStack(spacing: 8) {
                     HStack(spacing: 4) {
-                        Image(systemName: "star.circle.fill")
-                            .font(.system(size: 8))
-                            .foregroundColor(.yellow)
-                        Text(yearCanChi)
+                        Text(yearCanChi + " - \(entry.lunarDate.year) - ")
                             .font(.system(size: 10, weight: .semibold, design: .serif))
                             .foregroundColor(.primary)
+                            .fixedSize(horizontal: true, vertical: false)
+                        Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
+                            .font(.system(size: 8, weight: .semibold))
+                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -870,16 +945,7 @@ struct AccessoryRectangularView: View {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(Color.yellow.opacity(0.15))
                     )
-                    
-                    if !entry.holidays.isEmpty {
-                        HStack(spacing: 3) {
-                            Text(entry.holidays[0].emoji)
-                                .font(.system(size: 10))
-                            Text(entry.holidays[0].name)
-                                .font(.system(size: 9, weight: .medium))
-                                .lineLimit(1)
-                        }
-                    }
+                  
                     
                     Spacer()
                 }
@@ -889,14 +955,11 @@ struct AccessoryRectangularView: View {
             .containerBackground(for: .widget) {}
         } else {
             VStack(alignment: .leading, spacing: 4) {
+                // Top row: Large lunar date
                 HStack(spacing: 6) {
-                    Image(systemName: "moon.fill")
-                        .font(.system(size: 12))
-                        .foregroundColor(.red)
-                    
                     HStack(spacing: 2) {
                         Text("\(entry.lunarDate.day)")
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .font(.system(size: 30, weight: .bold, design: .rounded))
                         Text("/")
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.secondary)
@@ -906,8 +969,9 @@ struct AccessoryRectangularView: View {
                     
                     Spacer()
                     
+                    // Solar date (smaller)
                     VStack(alignment: .trailing, spacing: 1) {
-                        Text("Dương")
+                        Text("Dương lịch")
                             .font(.system(size: 7))
                             .foregroundColor(.secondary)
                         HStack(spacing: 1) {
@@ -922,12 +986,14 @@ struct AccessoryRectangularView: View {
                 
                 HStack(spacing: 8) {
                     HStack(spacing: 4) {
-                        Image(systemName: "star.circle.fill")
-                            .font(.system(size: 8))
-                            .foregroundColor(.yellow)
-                        Text(yearCanChi)
+                        Text(yearCanChi + " - \(entry.lunarDate.year) - ")
                             .font(.system(size: 10, weight: .semibold, design: .serif))
                             .foregroundColor(.primary)
+                            .fixedSize(horizontal: true, vertical: false)
+                        Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
+                            .font(.system(size: 8, weight: .semibold))
+                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -935,16 +1001,7 @@ struct AccessoryRectangularView: View {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(Color.yellow.opacity(0.15))
                     )
-                    
-                    if !entry.holidays.isEmpty {
-                        HStack(spacing: 3) {
-                            Text(entry.holidays[0].emoji)
-                                .font(.system(size: 10))
-                            Text(entry.holidays[0].name)
-                                .font(.system(size: 9, weight: .medium))
-                                .lineLimit(1)
-                        }
-                    }
+                  
                     
                     Spacer()
                 }
