@@ -535,31 +535,31 @@ struct LargeWidgetView: View {
 
     var body: some View {
         if #available(iOS 17.0, *) {
-            VStack(spacing: 10) {
+            VStack(spacing: 12) {
                 // Header with current date info
-                VStack(spacing: 6) {
+                VStack(spacing: 8) {
                     Text(entry.date, formatter: monthYearFormatter)
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.red)
                     
-                    HStack(spacing: 12) {
-                        VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 16) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text("Âm: \(entry.lunarDate.day)/\(entry.lunarDate.month)")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(.red)
                             Text("Dương: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
-                                .font(.caption2)
+                                .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                         
-                        Divider().frame(height: 28)
+                        Divider().frame(height: 30)
                         
-                        VStack(alignment: .leading, spacing: 3) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(dayChi)
-                                .font(.system(size: 10, weight: .semibold, design: .serif))
+                                .font(.system(size: 11, weight: .semibold, design: .serif))
                                 .foregroundColor(.primary)
                             Text(canChi)
-                                .font(.caption2)
+                                .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -585,7 +585,7 @@ struct LargeWidgetView: View {
                     .padding(.horizontal)
                 }
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .containerBackground(for: .widget) {
                 ZStack {
@@ -598,35 +598,43 @@ struct LargeWidgetView: View {
                         endPoint: .bottomTrailing
                     )
                     
-                    Circle().fill(Color.red.opacity(0.03)).frame(width: 240, height: 240).offset(x: -80, y: -60)
-                    Circle().fill(Color.orange.opacity(0.03)).frame(width: 200, height: 200).offset(x: 120, y: 100)
+                    Circle()
+                        .fill(Color.red.opacity(0.03))
+                        .frame(width: 240, height: 240)
+                        .offset(x: -80, y: -60)
+                    
+                    Circle()
+                        .fill(Color.orange.opacity(0.03))
+                        .frame(width: 200, height: 200)
+                        .offset(x: 120, y: 100)
                 }
             }
         } else {
-            VStack(spacing: 10) {
-                VStack(spacing: 6) {
+            VStack(spacing: 12) {
+                // Header with current date info
+                VStack(spacing: 8) {
                     Text(entry.date, formatter: monthYearFormatter)
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.red)
                     
-                    HStack(spacing: 12) {
-                        VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 16) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text("Âm: \(entry.lunarDate.day)/\(entry.lunarDate.month)")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(.red)
                             Text("Dương: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
-                                .font(.caption2)
+                                .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                         
-                        Divider().frame(height: 28)
+                        Divider().frame(height: 30)
                         
-                        VStack(alignment: .leading, spacing: 3) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(dayChi)
-                                .font(.system(size: 10, weight: .semibold, design: .serif))
+                                .font(.system(size: 11, weight: .semibold, design: .serif))
                                 .foregroundColor(.primary)
                             Text(canChi)
-                                .font(.caption2)
+                                .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -635,43 +643,11 @@ struct LargeWidgetView: View {
                 
                 Divider()
                 
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 10))
-                            .foregroundColor(.yellow)
-                        Text("Giờ Hoàng Đạo")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.red)
-                    }
-                    
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 6) {
-                        ForEach(entry.auspiciousHours.prefix(6), id: \.self) { hour in
-                            HStack(spacing: 3) {
-                                Image(systemName: "star.circle.fill")
-                                    .font(.system(size: 8))
-                                    .foregroundColor(.yellow)
-                                Text(hour)
-                                    .font(.system(size: 10, weight: .bold, design: .serif))
-                                    .foregroundColor(.primary)
-                                if let timeRange = AuspiciousHoursManager.chiHourRanges[hour] {
-                                    Text(timeRange.components(separatedBy: " - ").first ?? "")
-                                        .font(.system(size: 8))
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .frame(maxWidth: .infinity)
-                            .background(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.yellow.opacity(0.15))
-                            )
-                        }
-                    }
-                }
-                .padding(.horizontal, 12)
+                // Mini Calendar
+                WidgetCalendarView(currentDate: entry.date, lunarDate: entry.lunarDate)
+                    .padding(.horizontal, 8)
                 
+                // Holiday indicator at bottom
                 if !entry.holidays.isEmpty {
                     HStack {
                         Text(entry.holidays[0].emoji)
@@ -684,7 +660,7 @@ struct LargeWidgetView: View {
                     .padding(.horizontal)
                 }
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
                 ZStack {
@@ -697,8 +673,15 @@ struct LargeWidgetView: View {
                         endPoint: .bottomTrailing
                     )
                     
-                    Circle().fill(Color.red.opacity(0.03)).frame(width: 240, height: 240).offset(x: -80, y: -60)
-                    Circle().fill(Color.orange.opacity(0.03)).frame(width: 200, height: 200).offset(x: 120, y: 100)
+                    Circle()
+                        .fill(Color.red.opacity(0.03))
+                        .frame(width: 240, height: 240)
+                        .offset(x: -80, y: -60)
+                    
+                    Circle()
+                        .fill(Color.orange.opacity(0.03))
+                        .frame(width: 200, height: 200)
+                        .offset(x: 120, y: 100)
                 }
             )
         }
