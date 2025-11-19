@@ -161,7 +161,7 @@ struct SmallWidgetView: View {
                 // Smaller solar date
                 Text("Dương lịch: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.primary.opacity(0.7))
+                    .foregroundColor(.black.opacity(0.7))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(RoundedRectangle(cornerRadius: 6).fill(Color.red.opacity(0.1)))
@@ -170,10 +170,10 @@ struct SmallWidgetView: View {
                 HStack(spacing: 4) {
                     Text("Giờ " + currentHour)
                         .font(.system(size: 10, weight: .bold, design: .serif))
-                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                     Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
                         .font(.system(size: 8, weight: .semibold))
-                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
@@ -228,7 +228,7 @@ struct SmallWidgetView: View {
                 
                 Text("Dương lịch: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.primary.opacity(0.7))
+                    .foregroundColor(.black.opacity(0.7))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(RoundedRectangle(cornerRadius: 6).fill(Color.red.opacity(0.1)))
@@ -236,10 +236,10 @@ struct SmallWidgetView: View {
                 HStack(spacing: 4) {
                     Text("Giờ " + currentHour)
                         .font(.system(size: 10, weight: .bold, design: .serif))
-                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                     Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
                         .font(.system(size: 8, weight: .semibold))
-                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                        .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
@@ -334,10 +334,10 @@ struct MediumWidgetView: View {
                     HStack(spacing: 4) {
                         Text("Giờ " + currentHour)
                             .font(.system(size: 10, weight: .bold, design: .serif))
-                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                         Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
                             .font(.system(size: 8, weight: .semibold))
-                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
@@ -356,15 +356,15 @@ struct MediumWidgetView: View {
                         .foregroundColor(.secondary)
                     Text( "\(Calendar.current.component(.day, from: entry.date)) " + vietnameseMonthYear(from: entry.date))
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Ngày " + dayChi)
                             .font(.system(size: 11, weight: .semibold, design: .serif))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                             .fixedSize(horizontal: true, vertical: false)
                         Text("Năm " + yearCanChi)
                             .font(.system(size: 11, weight: .semibold, design: .serif))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                             .fixedSize(horizontal: true, vertical: false)
                     }
                     
@@ -447,15 +447,15 @@ struct MediumWidgetView: View {
                         .foregroundColor(.secondary)
                     Text( "\(Calendar.current.component(.day, from: entry.date)) " + vietnameseMonthYear(from: entry.date))
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Ngày " + dayChi)
                             .font(.system(size: 11, weight: .semibold, design: .serif))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                             .fixedSize(horizontal: true, vertical: false)
                         Text("Năm " + yearCanChi)
                             .font(.system(size: 11, weight: .semibold, design: .serif))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                             .fixedSize(horizontal: true, vertical: false)
                     }
                     
@@ -572,16 +572,16 @@ struct LargeWidgetView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(canChi)
                                 .font(.system(size: 11, weight: .semibold, design: .serif))
-                                .foregroundColor(.primary)
+                                .foregroundColor(.black)
                         }
                         Divider().frame(height: 30)
                         HStack(spacing: 4) {
                             Text("Giờ " + currentHour)
                                 .font(.system(size: 10, weight: .bold, design: .serif))
-                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                             Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
                                 .font(.system(size: 8, weight: .semibold))
-                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
@@ -656,16 +656,16 @@ struct LargeWidgetView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(canChi)
                                 .font(.system(size: 11, weight: .semibold, design: .serif))
-                                .foregroundColor(.primary)
+                                .foregroundColor(.black)
                         }
                         Divider().frame(height: 30)
                         HStack(spacing: 4) {
                             Text("Giờ " + currentHour)
                                 .font(.system(size: 10, weight: .bold, design: .serif))
-                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                             Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
                                 .font(.system(size: 8, weight: .semibold))
-                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                                .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
@@ -798,7 +798,7 @@ struct WidgetCalendarView: View {
                         VStack(spacing: 1) {
                             Text("\(components.day!)")
                                 .font(.system(size: 12, weight: isToday ? .bold : .semibold))
-                                .foregroundColor(isCurrentDate ? .white : (isToday ? .red : .primary))
+                                .foregroundColor(isCurrentDate ? .white : (isToday ? .red : .black))
                             
                             Text("\(dayLunarDate.day)")
                                 .font(.system(size: 8))
@@ -970,11 +970,11 @@ struct AccessoryRectangularView: View {
                     HStack(spacing: 4) {
                         Text(yearCanChi + " - \(entry.lunarDate.year) - ")
                             .font(.system(size: 10, weight: .semibold, design: .serif))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.black)
                             .fixedSize(horizontal: true, vertical: false)
                         Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
                             .font(.system(size: 10, weight: .semibold, design: .serif))
-                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                             .fixedSize(horizontal: true, vertical: false)
                     }
                     .padding(.horizontal, 6)
@@ -1026,11 +1026,11 @@ struct AccessoryRectangularView: View {
                     HStack(spacing: 4) {
                         Text(yearCanChi + " - \(entry.lunarDate.year) - ")
                             .font(.system(size: 10, weight: .semibold, design: .serif))
-                            .foregroundColor(.primary)
+                            .foregroundColor(.white)
                             .fixedSize(horizontal: true, vertical: false)
                         Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
                             .font(.system(size: 8, weight: .semibold))
-                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
+                            .foregroundColor(isCurrentHourAuspicious ? .yellow : .black)
                             .fixedSize(horizontal: true, vertical: false)
                     }
                     .padding(.horizontal, 6)

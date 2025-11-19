@@ -27,8 +27,6 @@ struct VietnameseLunarCalendarApp: App {
                 .environmentObject(notificationManager)
                 .environmentObject(calendarIntegration)
                 .environmentObject(eventManager) // NEW!
-                .preferredColorScheme(calendarViewModel.isDarkMode ? .dark : .light)
-                .animation(.easeInOut(duration: 0.3), value: calendarViewModel.isDarkMode)
         }
     }
     
