@@ -837,34 +837,83 @@ struct WidgetCalendarView: View {
 @available(iOS 16.0, *)
 struct AccessoryCircularView: View {
     var entry: LunarCalendarProvider.Entry
-    
+
     var body: some View {
-        if #available(iOSApplicationExtension 17.0, *) {
-            ZStack {
-                AccessoryWidgetBackground()
-                VStack(spacing: 0) {
-                    Text("\(entry.lunarDate.day)")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                    Text("T\(entry.lunarDate.month)")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.red)
-                }
-            }
-            .containerBackground(for: .widget) {}
-        } else {
-            ZStack {
-                AccessoryWidgetBackground()
-                VStack(spacing: 0) {
-                    Text("\(entry.lunarDate.day)")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                    Text("T\(entry.lunarDate.month)")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.red)
-                }
+        Group {
+            if #available(iOSApplicationExtension 17.0, *) {
+                content
+                    .containerBackground(for: .widget) {}
+            } else {
+                content
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(entry.lunarDate.day) tháng \(entry.lunarDate.month) âm lịch")
+    }
+
+    private var content: some View {
+        ZStack {
+            // Clean white card with subtle translucency (glass-like)
+            Circle()
+                .fill(.ultraThinMaterial) // clean glass + white effect
+                .overlay(
+                    Circle()
+                        .fill(Color.white.opacity(0.85))
+                        .blendMode(.overlay)
+                )
+
+            // Inner subtle radial to give depth
+            Circle()
+                .fill(
+                    RadialGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: Color.white.opacity(0.95), location: 0),
+                            .init(color: Color(red: 1.0, green: 0.97, blue: 0.98).opacity(0.7), location: 0.6),
+                            .init(color: Color.white.opacity(0.6), location: 1)
+                        ]),
+                        center: .center,
+                        startRadius: 2,
+                        endRadius: 60
+                    )
+                )
+                .padding(2)
+
+            // Thin red accent ring
+            Circle()
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [Color(red: 0.85, green: 0.12, blue: 0.12),
+                                 Color(red: 0.98, green: 0.3, blue: 0.22)],
+                        startPoint: .top,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 2.0
+                )
+                .shadow(color: Color.red.opacity(0.12), radius: 1, x: 0, y: 0)
+
+            // Content
+            VStack(spacing: -3) {
+                Text("\(entry.lunarDate.day)")
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundColor(Color(red: 0.13, green: 0.13, blue: 0.13)) // dark text for contrast
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
+
+                HStack(spacing: 4) {
+                    Text("T\(entry.lunarDate.month)")
+                        .font(.system(size: 9, weight: .semibold, design: .rounded))
+                        .foregroundColor(Color(red: 0.85, green: 0.12, blue: 0.12)) // red accent
+                        .baselineOffset(0)
+                }
+            }
+            .padding(.vertical, 6)
+            .shadow(color: Color.black.opacity(0.03), radius: 1, x: 0, y: 0.5)
+        }
+        .padding(4) // ensure ring isn't clipped in accessory
+        .frame(width: 48, height: 48) // accessory circular reasonable size
     }
 }
+
 
 // MARK: - Accessory Rectangular - IMPROVED with Can Chi and Clear Layout
 @available(iOS 16.0, *)
@@ -935,7 +984,7 @@ struct AccessoryRectangularView: View {
                             .foregroundColor(.primary)
                             .fixedSize(horizontal: true, vertical: false)
                         Text(isCurrentHourAuspicious ? "Hoàng Đạo" : "Hắc Đạo")
-                            .font(.system(size: 8, weight: .semibold))
+                            .font(.system(size: 10, weight: .semibold, design: .serif))
                             .foregroundColor(isCurrentHourAuspicious ? .yellow : .secondary)
                             .fixedSize(horizontal: true, vertical: false)
                     }
@@ -1122,48 +1171,5 @@ struct LunarCalendarWidget: Widget {
 struct LunarCalendarWidgetBundle: WidgetBundle {
     var body: some Widget {
         LunarCalendarWidget()
-    }
-}
-
-// MARK: - Preview
-struct LunarCalendarWidget_Previews: PreviewProvider {
-    static var previews: some View {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year, .month, .day], from: Date())
-        
-        let sampleEntry = LunarCalendarEntry(
-            date: Date(),
-            lunarDate: LunarCalendarCalculator.convertSolarToLunar(
-                day: components.day!,
-                month: components.month!,
-                year: components.year!
-            ),
-            holidays: [],
-            auspiciousHours: ["Tý", "Dần", "Mão", "Thìn", "Ngọ", "Tuất"]
-        )
-
-        Group {
-            LunarCalendarWidgetEntryView(entry: sampleEntry)
-                .previewContext(WidgetPreviewContext(family: .systemSmall))
-                .previewDisplayName("Small - Lunar + Auspicious Hour")
-
-            LunarCalendarWidgetEntryView(entry: sampleEntry)
-                .previewContext(WidgetPreviewContext(family: .systemMedium))
-                .previewDisplayName("Medium - Lunar Info")
-
-            LunarCalendarWidgetEntryView(entry: sampleEntry)
-                .previewContext(WidgetPreviewContext(family: .systemLarge))
-                .previewDisplayName("Large - With Auspicious Hours")
-            
-            if #available(iOS 16.0, *) {
-                LunarCalendarWidgetEntryView(entry: sampleEntry)
-                    .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
-                    .previewDisplayName("Lock - Rectangular")
-                
-                LunarCalendarWidgetEntryView(entry: sampleEntry)
-                    .previewContext(WidgetPreviewContext(family: .accessoryInline))
-                    .previewDisplayName("Lock - Inline")
-            }
-        }
     }
 }
