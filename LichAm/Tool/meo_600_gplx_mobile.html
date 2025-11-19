@@ -3,115 +3,461 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hướng dẫn thêm Widget — Lịch Âm</title>
+<title>Hướng dẫn chi tiết thêm Widget — Lịch Âm Việt Nam</title>
 <style>
   :root{
     --bg:#0b1220; --card:#0f1724; --muted:#9aa8bf; --accent:#ff6b3d; --accent-2:#ffd47a;
-    --glass: rgba(255,255,255,0.03);
+    --glass: rgba(255,255,255,0.03); --success:#10b981; --warning:#f59e0b; --info:#3b82f6;
   }
-  html,body{height:100%;margin:0;font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial; background: linear-gradient(180deg,#071028 0%, #04101a 100%); color: #e6eef8;}
+  html,body{height:100%;margin:0;font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial; background: linear-gradient(180deg,#071028 0%, #04101a 100%); color: #e6eef8;line-height:1.6;}
   .wrap{max-width:900px;margin:24px auto;padding:18px;}
-  header{display:flex;flex-direction:row;gap:16px;align-items:center;margin-bottom:18px}
-  header .logo{width:68px;height:68px;border-radius:14px;background:linear-gradient(135deg,#ff7b50,#ffb86b);display:flex;align-items:center;justify-content:center;font-weight:700;color:#111}
-  h1{margin:0 0 6px 0;font-size:20px}
-  p.lead{margin:0;color:var(--muted);font-size:13px}
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); padding:16px;border-radius:12px;margin-bottom:14px}
-  .steps{list-style:none;padding:0;margin:8px 0 0}
-  .step{display:flex;gap:12px;margin:10px 0}
-  .step .num{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:700}
-  .step .content{flex:1}
-  .sub{padding-left:46px;color:var(--muted);font-size:14px;margin-top:6px}
-  .btn{display:inline-block;padding:8px 12px;border-radius:10px;background:var(--accent);color:#111;font-weight:600;text-decoration:none}
-  .muted{color:var(--muted);font-size:13px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .illustration{height:160px;border-radius:12px;background:linear-gradient(135deg,#051827,#12313f);display:flex;align-items:center;justify-content:center;color:var(--muted);flex-direction:column}
-  .illustration img{max-height:120px;max-width:100%}
-  .note{background:var(--glass);padding:10px;border-radius:8px;color:var(--muted);font-size:13px}
-  footer{margin-top:10px;color:var(--muted);font-size:13px}
-  @media (max-width:720px){ .grid{grid-template-columns:1fr} header{flex-direction:column;align-items:flex-start} .illustration{height:120px} }
+  
+  /* Header */
+  header{display:flex;flex-direction:row;gap:16px;align-items:center;margin-bottom:24px;padding:20px;background:linear-gradient(135deg, rgba(255,107,61,0.1), rgba(255,212,122,0.1));border-radius:16px;border:1px solid rgba(255,107,61,0.2);}
+  header .logo{width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,#ff7b50,#ffb86b);display:flex;align-items:center;justify-content:center;font-weight:700;color:#111;font-size:32px;box-shadow:0 4px 12px rgba(255,107,61,0.3);}
+  h1{margin:0 0 6px 0;font-size:22px;color:var(--accent-2);}
+  p.lead{margin:0;color:var(--muted);font-size:14px;}
+  
+  /* Cards */
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.05); padding:20px;border-radius:14px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+  .card h2{margin:0 0 16px 0;font-size:20px;color:var(--accent);display:flex;align-items:center;gap:10px;}
+  .card h2::before{content:"";width:4px;height:24px;background:linear-gradient(180deg,var(--accent),var(--accent-2));border-radius:2px;}
+  
+  /* Steps */
+  .steps{list-style:none;padding:0;margin:12px 0 0;counter-reset:step-counter;}
+  .step{display:flex;gap:14px;margin:16px 0;padding:16px;background:rgba(255,255,255,0.02);border-radius:10px;border-left:3px solid var(--accent);counter-increment:step-counter;}
+  .step .num{min-width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#111;font-weight:700;font-size:18px;box-shadow:0 2px 8px rgba(255,107,61,0.4);}
+  .step .num::before{content:counter(step-counter);}
+  .step .content{flex:1;}
+  .step .content strong{color:var(--accent-2);font-weight:600;}
+  .sub{margin-top:10px;padding:12px;background:rgba(59,130,246,0.1);border-left:3px solid var(--info);border-radius:6px;color:var(--muted);font-size:13px;}
+  .sub.warning{background:rgba(245,158,11,0.1);border-left-color:var(--warning);color:#fbbf24;}
+  .sub.tip{background:rgba(16,185,129,0.1);border-left-color:var(--success);color:#6ee7b7;}
+  
+  /* Feature boxes */
+  .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;}
+  .feature-box{padding:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:10px;text-align:center;}
+  .feature-box .icon{font-size:32px;margin-bottom:8px;}
+  .feature-box .title{font-weight:600;color:var(--accent-2);margin-bottom:4px;font-size:14px;}
+  .feature-box .desc{font-size:12px;color:var(--muted);}
+  
+  /* Requirements */
+  .req-box{display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;margin:8px 0;}
+  .req-box .icon{font-size:24px;}
+  .req-box .text{flex:1;}
+  .req-box .text .label{font-weight:600;color:#e6eef8;font-size:14px;}
+  .req-box .text .detail{font-size:12px;color:var(--muted);}
+  
+  /* Troubleshooting */
+  .troubleshoot{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);padding:16px;border-radius:10px;margin:12px 0;}
+  .troubleshoot .q{font-weight:600;color:var(--warning);margin-bottom:8px;font-size:15px;}
+  .troubleshoot .a{color:var(--muted);font-size:14px;padding-left:16px;}
+  
+  /* Note boxes */
+  .note{background:var(--glass);padding:14px;border-radius:10px;color:var(--muted);font-size:13px;border-left:3px solid var(--info);margin:12px 0;}
+  .note.success{border-left-color:var(--success);background:rgba(16,185,129,0.05);}
+  .note.warning{border-left-color:var(--warning);background:rgba(245,158,11,0.05);}
+  
+  /* Images placeholder */
+  .illustration{height:180px;border-radius:12px;background:linear-gradient(135deg,#051827,#12313f);display:flex;align-items:center;justify-content:center;color:var(--muted);flex-direction:column;border:1px solid rgba(255,255,255,0.05);margin:12px 0;}
+  .illustration img{max-height:140px;max-width:100%;border-radius:8px;}
+  .illustration .label{margin-top:8px;font-size:12px;color:var(--muted);}
+  
+  /* Footer */
+  footer{margin-top:32px;padding:20px;background:rgba(255,255,255,0.02);border-radius:12px;color:var(--muted);font-size:13px;text-align:center;}
+  
+  /* Responsive */
+  @media (max-width:720px){
+    .feature-grid{grid-template-columns:1fr;}
+    header{flex-direction:column;align-items:flex-start;}
+    .illustration{height:140px;}
+  }
+  
+  /* Utility */
+  .emoji{font-size:20px;margin-right:8px;}
+  strong{color:var(--accent-2);}
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
 </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-    <!-- Home screen instructions -->
+      <div>
+        <h1>Hướng dẫn chi tiết thêm Widget Lịch Âm</h1>
+        <p class="lead">Xem lịch Âm-Dương và các ngày lễ ngay trên màn hình của bạn</p>
+      </div>
+    </header>
+
+    <!-- Yêu cầu hệ thống -->
     <div class="card">
-      <h2 style="margin:0 0 8px 0">Thêm vào Màn hình chính</h2>
+      <h2>Yêu cầu hệ thống</h2>
+      
+      <div class="req-box">
+        <div class="text">
+          <div class="label">Widget Màn hình chính (Home Screen)</div>
+          <div class="detail">iOS 14 trở lên • Tất cả iPhone hỗ trợ iOS 14+</div>
+        </div>
+      </div>
+      
+      <div class="req-box">
+        <div class="text">
+          <div class="label">Widget Màn hình khóa (Lock Screen)</div>
+          <div class="detail">iOS 16 trở lên • iPhone XR và mới hơn</div>
+        </div>
+      </div>
+      
+      <div class="note">
+         <strong>Lưu ý:</strong> Đảm bảo bạn đã cài đặt và mở ứng dụng Lịch Âm Việt Nam ít nhất một lần trước khi thêm widget.
+      </div>
+    </div>
+
+    <!-- Widget sizes -->
+    <div class="card">
+      <h2>Các kích thước Widget có sẵn</h2>
+      
+      <div class="feature-grid">
+        <div class="feature-box">
+          <div class="icon">🔲</div>
+          <div class="title">Widget Nhỏ (Small)</div>
+          <div class="desc">Hiển thị ngày Dương lịch, ngày Âm lịch và con giáp ngắn gọn</div>
+        </div>
+        
+        <div class="feature-box">
+          <div class="icon">▬</div>
+          <div class="title">Widget Vừa (Medium)</div>
+          <div class="desc">Thêm thông tin Can Chi, giờ tốt và ngày lễ nếu có</div>
+        </div>
+        
+        <div class="feature-box">
+          <div class="icon">▭</div>
+          <div class="title">Widget Lớn (Large)</div>
+          <div class="desc">Hiển thị đầy đủ: lịch tháng, giờ Hoàng Đạo, các ngày lễ sắp tới</div>
+        </div>
+        
+        <div class="feature-box">
+          <div class="icon">🔒</div>
+          <div class="title">Lock Screen Widgets</div>
+          <div class="desc">Inline, Rectangular, Circular - xem nhanh từ màn hình khóa</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hướng dẫn Home Screen -->
+    <div class="card">
+      <h2>Thêm Widget vào Màn hình chính (Home Screen)</h2>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:16px;">Làm theo 5 bước đơn giản sau đây:</p>
+      
       <ol class="steps">
         <li class="step">
-          <div class="num">1</div>
+          <div class="num"></div>
           <div class="content">
-            <strong>Chạm và giữ</strong> vào khoảng trống trên màn hình chính cho đến khi các icon rung hoặc hiện menu.
-            <div class="sub">Nếu bạn dùng iPhone có iOS mới, bạn có thể thấy menu nhanh — chọn "Sửa Màn hình chính" hoặc tiếp tục giữ.</div>
+            <strong>Chạm và giữ</strong> vào khoảng trống bất kỳ trên màn hình chính (Home Screen) của bạn.
+            <div class="sub">
+              Giữ cho đến khi các biểu tượng ứng dụng bắt đầu rung lắc hoặc một menu xuất hiện. Trên iOS 13+, bạn có thể thấy menu nhanh - chọn <strong>"Sửa Màn hình chính"</strong> hoặc tiếp tục giữ.
+            </div>
           </div>
         </li>
 
         <li class="step">
-          <div class="num">2</div>
+          <div class="num"></div>
           <div class="content">
-            <strong>Nhấn nút “+”</strong> ở góc trên bên trái màn hình.
-            <div class="sub">Hộp chọn widget sẽ hiện, cuộn để tìm mục “Lịch Âm Việt Nam”.</div>
+            <strong>Nhấn nút dấu cộng (+)</strong> ở góc trên bên trái màn hình.
+            <div class="sub">
+              Một thư viện widget sẽ xuất hiện. Đây là nơi chứa tất cả các widget có sẵn từ các ứng dụng đã cài đặt trên thiết bị của bạn.
+            </div>
+            <div class="illustration">
+              <div class="label">Vị trí nút (+) ở góc trên trái</div>
+            </div>
           </div>
         </li>
 
         <li class="step">
-          <div class="num">3</div>
+          <div class="num"></div>
           <div class="content">
-            <strong>Chọn kích thước widget</strong> (Nhỏ / Vừa / Lớn).
-            <div class="sub">Widget nhỏ phù hợp nếu bạn muốn chỉ thấy ngày âm lớn; widget lớn hiển thị thêm thông tin.</div>
+            <strong>Tìm kiếm và chọn "Lịch Âm Việt Nam"</strong>
+            <div class="sub">
+              Bạn có thể:
+              <br>• Vuốt xuống để duyệt danh sách widget
+              <br>• Sử dụng thanh tìm kiếm ở trên và gõ "Lịch Âm"
+              <br>• Nhấn vào <strong>"Lịch Âm Việt Nam"</strong> khi thấy
+            </div>
+            <div class="sub tip">
+               <strong>Mẹo:</strong> Nếu không thấy widget, hãy đảm bảo bạn đã mở ứng dụng Lịch Âm ít nhất một lần sau khi cài đặt.
+            </div>
           </div>
         </li>
 
         <li class="step">
-          <div class="num">4</div>
+          <div class="num"></div>
           <div class="content">
-            <strong>Nhấn “Thêm Widget”</strong> → sau đó kéo widget tới vị trí bạn muốn trên Home Screen → Nhấn "Xong".
-            <div class="sub">Widget sẽ lấy dữ liệu ngay — nếu không thấy, mở app để refresh dữ liệu.</div>
+            <strong>Chọn kích thước widget phù hợp</strong>
+            <div class="sub">
+              Vuốt trái/phải để xem các kích thước khác nhau:
+              <br><br>
+              <strong>• Widget Nhỏ:</strong> Hiển thị ngày Dương lịch lớn, ngày Âm lịch và emoji con giáp
+              <br><strong>• Widget Vừa:</strong> Thêm Can Chi, ngày lễ (nếu có), và thông tin chi tiết hơn
+              <br><strong>• Widget Lớn:</strong> Hiển thị đầy đủ lịch tháng mini và danh sách ngày lễ sắp tới
+            </div>
+            <div class="sub warning">
+               <strong>Lưu ý:</strong> Mỗi kích thước widget chiếm một lượng không gian khác nhau trên màn hình của bạn.
+            </div>
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="num"></div>
+          <div class="content">
+            <strong>Nhấn "Thêm Widget" và sắp xếp vị trí</strong>
+            <div class="sub">
+              • Widget sẽ xuất hiện trên màn hình chính
+              <br>• Giữ và kéo widget để di chuyển đến vị trí mong muốn
+              <br>• Nhấn "Xong" ở góc trên bên phải để hoàn tất
+              <br>• Widget sẽ tự động cập nhật thông tin mỗi ngày
+            </div>
+            <div class="sub tip">
+              <strong>Hoàn thành!</strong> Widget của bạn đã sẵn sàng. Nó sẽ tự động cập nhật vào 00:00 mỗi ngày với thông tin lịch mới.
+            </div>
           </div>
         </li>
       </ol>
     </div>
 
-    <!-- Lock screen instructions -->
+    <!-- Hướng dẫn Lock Screen -->
     <div class="card">
-      <h2 style="margin:0 0 8px 0">Thêm vào Màn hình khóa (Lock Screen)</h2>
-      <p class="muted">Yêu cầu: iOS 16+ để hỗ trợ widget màn hình khóa.</p>
-
+      <h2>Thêm Widget vào Màn hình khóa (Lock Screen)</h2>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:16px;">Chỉ áp dụng cho iOS 16 trở lên:</p>
+      
       <ol class="steps">
         <li class="step">
-          <div class="num">1</div>
+          <div class="num"></div>
           <div class="content">
-            <strong>Chạm giữ màn hình khóa</strong> (Lock Screen) → chọn <strong>Tuỳ chỉnh</strong>.
-            <div class="sub">Hoặc vào Cài đặt → Màn hình khóa → Tùy chỉnh màn hình khóa hiện tại.</div>
+            <strong>Chạm và giữ màn hình khóa</strong> (khi điện thoại đang khóa)
+            <div class="sub">
+              • Đảm bảo điện thoại đã mở khóa nhưng bạn đang ở màn hình khóa
+              <br>• Hoặc vào <strong>Cài đặt > Màn hình khóa > Tùy chỉnh</strong>
+              <br>• Bạn sẽ thấy tùy chọn tùy chỉnh hoặc danh sách các màn hình khóa
+            </div>
           </div>
         </li>
 
         <li class="step">
-          <div class="num">2</div>
+          <div class="num"></div>
           <div class="content">
-            <strong>Chọn khu vực đặt widget</strong>:
-            <div class="sub">• Inline (bên cạnh đồng hồ) — dùng cho thông tin ngắn.<br>• Rectangular / Circular (dưới đồng hồ) — hiển thị ngày âm lớn/biểu tượng.</div>
+            <strong>Chọn "Tuỳ chỉnh" màn hình khóa hiện tại</strong>
+            <div class="sub">
+              • Nếu bạn có nhiều màn hình khóa, chọn cái bạn đang sử dụng
+              <br>• Hoặc tạo màn hình khóa mới bằng nút (+)
+              <br>• Nhấn "Tuỳ chỉnh" để vào chế độ chỉnh sửa
+            </div>
           </div>
         </li>
 
         <li class="step">
-          <div class="num">3</div>
+          <div class="num"></div>
           <div class="content">
-            <strong>Cuộn danh sách widget</strong> và tìm “<em>Lịch Âm Việt Nam</em>”, nhấn để thêm.
-            <div class="sub">Bạn có thể thêm nhiều kích thước phụ thuộc vùng (Inline, Rectangular, Circular).</div>
+            <strong>Chọn vùng để đặt widget</strong>
+            <div class="sub">
+              Có 3 vùng bạn có thể đặt widget:
+              <br><br>
+              <strong>1. Vùng Inline (ngay bên cạnh/dưới đồng hồ):</strong>
+              <br>→ Hiển thị một dòng text ngắn: "15/8 Âm - Tết Trung Thu"
+              <br><br>
+              <strong>2. Vùng Rectangular (dưới đồng hồ, hình chữ nhật):</strong>
+              <br>→ Hiển thị ngày Âm lịch và con giáp với biểu tượng
+              <br><br>
+              <strong>3. Vùng Circular (dưới đồng hồ, hình tròn):</strong>
+              <br>→ Hiển thị số ngày Âm hoặc biểu tượng con giáp
+            </div>
+            <div class="sub tip">
+               Bạn có thể thêm nhiều widget vào các vùng khác nhau cùng lúc!
+            </div>
           </div>
         </li>
 
         <li class="step">
-          <div class="num">4</div>
+          <div class="num"></div>
           <div class="content">
-            <strong>Nhấn “Xong”</strong> để lưu thay đổi.
-            <div class="sub">Quay lại màn hình khóa để kiểm tra hiển thị.</div>
+            <strong>Tìm và chọn widget "Lịch Âm Việt Nam"</strong>
+            <div class="sub">
+              • Sau khi nhấn vào một vùng widget, cuộn danh sách xuống
+              <br>• Tìm <strong>"Lịch Âm Việt Nam"</strong>
+              <br>• Chọn loại widget phù hợp với vùng bạn đã chọn
+              <br>• Widget sẽ được thêm vào màn hình khóa
+            </div>
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="num"></div>
+          <div class="content">
+            <strong>Nhấn "Xong" để lưu thay đổi</strong>
+            <div class="sub">
+              • Quay lại màn hình khóa để xem kết quả
+              <br>• Widget sẽ hiển thị thông tin lịch ngay lập tức
+              <br>• Thông tin tự động cập nhật hàng ngày
+            </div>
+            <div class="sub tip">
+              <strong>Hoàn thành!</strong> Bây giờ bạn có thể xem lịch Âm ngay từ màn hình khóa mà không cần mở điện thoại.
+            </div>
           </div>
         </li>
       </ol>
     </div>
 
+    <!-- Tùy chỉnh và Mẹo -->
+    <div class="card">
+      <h2>Tùy chỉnh và Mẹo sử dụng</h2>
+      
+      <div class="troubleshoot">
+        <div class="q">Có thể thay đổi giao diện widget không?</div>
+        <div class="a">
+          Widget tự động thích ứng với chế độ Sáng/Tối của hệ thống. Bạn có thể thay đổi chế độ này trong <strong>Cài đặt > Màn hình & Độ sáng</strong>.
+        </div>
+      </div>
+      
+      <div class="troubleshoot">
+        <div class="q">Widget tự động cập nhật khi nào?</div>
+        <div class="a">
+          Widget cập nhật:
+          <br>• Vào 00:00 mỗi ngày (tự động)
+          <br>• Khi bạn mở ứng dụng Lịch Âm
+          <br>• Khi bạn chạm vào widget để mở ứng dụng
+        </div>
+      </div>
+      
+      <div class="troubleshoot">
+        <div class="q">Thêm nhiều widget cùng lúc?</div>
+        <div class="a">
+          Có! Bạn có thể thêm nhiều widget với kích thước khác nhau trên các màn hình khác nhau. Ví dụ: Widget nhỏ trên Home Screen và widget Inline trên Lock Screen.
+        </div>
+      </div>
+      
+      <div class="troubleshoot">
+        <div class="q">Sắp xếp widget đẹp mắt?</div>
+        <div class="a">
+          Một số gợi ý:
+          <br>• Đặt widget Lớn ở màn hình đầu tiên để dễ nhìn
+          <br>• Widget Nhỏ có thể xếp chung với các widget khác
+          <br>• Widget Lock Screen nên ở vị trí dễ nhìn (không bị che bởi thông báo)
+        </div>
+      </div>
+    </div>
+
+    <!-- Xử lý sự cố -->
+    <div class="card">
+      <h2>Xử lý sự cố thường gặp</h2>
+      
+      <div class="troubleshoot">
+        <div class="q">Không thấy widget "Lịch Âm Việt Nam" trong danh sách</div>
+        <div class="a">
+          <strong>Giải pháp:</strong>
+          <br>1. Đảm bảo bạn đã cài đặt ứng dụng Lịch Âm Việt Nam
+          <br>2. Mở ứng dụng ít nhất một lần
+          <br>3. Khởi động lại iPhone
+          <br>4. Thử lại sau 5-10 phút (hệ thống cần thời gian cập nhật)
+        </div>
+      </div>
+      
+      <div class="troubleshoot">
+        <div class="q">Widget hiển thị "Đang tải..." hoặc trống</div>
+        <div class="a">
+          <strong>Giải pháp:</strong>
+          <br>1. Mở ứng dụng Lịch Âm để refresh dữ liệu
+          <br>2. Xóa widget và thêm lại
+          <br>3. Đảm bảo điện thoại có kết nối internet (lần đầu)
+          <br>4. Kiểm tra phiên bản iOS (cần iOS 14+ cho Home Screen, iOS 16+ cho Lock Screen)
+        </div>
+      </div>
+      
+      <div class="troubleshoot">
+        <div class="q">Thông tin lịch không chính xác</div>
+        <div class="a">
+          <strong>Giải pháp:</strong>
+          <br>1. Kiểm tra ngày giờ hệ thống của iPhone (Cài đặt > Cài đặt chung > Ngày & Giờ)
+          <br>2. Bật "Đặt Tự động" cho múi giờ
+          <br>3. Mở ứng dụng để đồng bộ dữ liệu mới
+          <br>4. Widget sẽ tự động cập nhật sau một thời gian ngắn
+        </div>
+      </div>
+      
+      <div class="troubleshoot">
+        <div class="q">Widget làm hao pin không?</div>
+        <div class="a">
+          <strong>Trả lời:</strong> Không đáng kể. Widget được iOS tối ưu hóa để chỉ cập nhật khi cần thiết. Mức tiêu thụ pin rất thấp, tương đương với việc hiển thị một hình ảnh tĩnh.
+        </div>
+      </div>
+      
+      <div class="troubleshoot">
+        <div class="q">Làm sao xóa widget?</div>
+        <div class="a">
+          <strong>Cách xóa:</strong>
+          <br>• <strong>Home Screen:</strong> Chạm giữ vào widget → Chọn "Xoá Widget" → Xác nhận
+          <br>• <strong>Lock Screen:</strong> Tuỳ chỉnh màn hình khóa → Chọn vùng widget → Xóa widget → Xong
+        </div>
+      </div>
+    </div>
+
+    <!-- Lợi ích của Widget -->
+    <div class="card">
+      <h2>Lợi ích khi sử dụng Widget</h2>
+      
+      <div class="feature-grid">
+        <div class="feature-box">
+          <div class="title">Truy cập nhanh</div>
+          <div class="desc">Xem thông tin lịch Âm mà không cần mở ứng dụng</div>
+        </div>
+        
+        <div class="feature-box">
+          <div class="title">Luôn cập nhật</div>
+          <div class="desc">Tự động cập nhật thông tin mỗi ngày vào 00:00</div>
+        </div>
+        
+        <div class="feature-box">
+          <div class="title">Giao diện đẹp</div>
+          <div class="desc">Thiết kế tối giản, sang trọng, phù hợp mọi màn hình</div>
+        </div>
+        
+        <div class="feature-box">
+          <div class="title">Thông tin đầy đủ</div>
+          <div class="desc">Âm lịch, Dương lịch, Can Chi, con giáp, ngày lễ</div>
+        </div>
+        
+        <div class="feature-box">
+          <div class="title">Tiết kiệm pin</div>
+          <div class="desc">Tối ưu hóa bởi iOS, không làm hao pin đáng kể</div>
+        </div>
+        
+        <div class="feature-box">
+          <div class="title">Nhiều lựa chọn</div>
+          <div class="desc">3 kích thước Home Screen + 3 loại Lock Screen</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liên hệ hỗ trợ -->
+    <div class="card">
+      <h2>💬 Cần hỗ trợ thêm?</h2>
+      
+      <div class="note success">
+        <strong>🌟 Đánh giá ứng dụng:</strong>
+        <br>Nếu widget hữu ích với bạn, hãy dành 1 phút để đánh giá ⭐⭐⭐⭐⭐ trên App Store. Điều này giúp chúng tôi rất nhiều!
+      </div>
+      
+      <div class="note">
+        <strong>📧 Liên hệ hỗ trợ:</strong>
+        <br>Email: huyduc.dev@gmail.com
+        <br>Thời gian phản hồi: Trong vòng 24-48 giờ
+      </div>
+      
+      <div class="note warning">
+        <strong>🐛 Báo lỗi:</strong>
+        <br>Nếu bạn gặp lỗi, vui lòng gửi email kèm theo:
+        <br>• Phiên bản iOS đang sử dụng
+        <br>• Mô tả chi tiết vấn đề
+        <br>• Ảnh chụp màn hình (nếu có)
+      </div>
+    </div>
   </div>
 </body>
 </html>

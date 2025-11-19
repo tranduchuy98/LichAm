@@ -151,9 +151,10 @@ struct SmallWidgetView: View {
                             .font(.system(size: 48, weight: .bold, design: .rounded))
                             .foregroundColor(.red)
                         
-                        Text("Tháng \(entry.lunarDate.month) \(entry.lunarDate.year)")
+                        Text(verbatim:"Tháng \(entry.lunarDate.month) \(entry.lunarDate.year)")
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundColor(.red.opacity(0.7))
+                        
                     }
                 }
                 
@@ -507,7 +508,7 @@ struct MediumWidgetView: View {
         let month = components.month ?? 1
         let year = components.year ?? 2025
         
-        return "Tháng \(month) \(year)"
+        return " \(month) \(year)"
     }
 }
 
@@ -564,18 +565,12 @@ struct LargeWidgetView: View {
                             Text("Âm: \(entry.lunarDate.day)/\(entry.lunarDate.month)")
                                 .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(.red)
-                            Text("Dương: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
                         }
                         
                         Divider().frame(height: 30)
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Ngày " + dayChi)
-                                .font(.system(size: 11, weight: .semibold, design: .serif))
-                                .foregroundColor(.primary)
-                            Text("Năm " + canChi)
+                            Text(canChi)
                                 .font(.system(size: 11, weight: .semibold, design: .serif))
                                 .foregroundColor(.primary)
                         }
@@ -654,20 +649,14 @@ struct LargeWidgetView: View {
                             Text("Âm: \(entry.lunarDate.day)/\(entry.lunarDate.month)")
                                 .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(.red)
-                            Text("Dương: \(Calendar.current.component(.day, from: entry.date))/\(Calendar.current.component(.month, from: entry.date))")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
                         }
                         
                         Divider().frame(height: 30)
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(dayChi)
+                            Text(canChi)
                                 .font(.system(size: 11, weight: .semibold, design: .serif))
                                 .foregroundColor(.primary)
-                            Text(canChi)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
                         }
                         Divider().frame(height: 30)
                         HStack(spacing: 4) {
