@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3E972AB82ED04C4000BF0844 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 3E972AB72ED04C4000BF0844 /* GoogleMobileAds */; };
 		9AC26AB32EC4E080002EAD5E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC26A352EC4D797002EAD5E /* WidgetKit.framework */; };
 		9AC26AB42EC4E080002EAD5E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AC26A372EC4D797002EAD5E /* SwiftUI.framework */; };
 		9AC26AC32EC4E081002EAD5E /* LichAmWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9AC26AB22EC4E080002EAD5E /* LichAmWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -96,6 +97,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3E972AB82ED04C4000BF0844 /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,6 +165,7 @@
 			);
 			name = LichAm;
 			packageProductDependencies = (
+				3E972AB72ED04C4000BF0844 /* GoogleMobileAds */,
 			);
 			productName = LichAm;
 			productReference = 3ECDFFC92EC4874D00C3ADBE /* LichAm.app */;
@@ -218,6 +221,7 @@
 			mainGroup = 3ECDFFC02EC4874D00C3ADBE;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				3E972AAF2ED0494100BF0844 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3ECDFFCA2EC4874D00C3ADBE /* Products */;
@@ -417,7 +421,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = huyduc.LichAm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -455,7 +459,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = huyduc.LichAm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -559,6 +563,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3E972AAF2ED0494100BF0844 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.14.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3E972AB72ED04C4000BF0844 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3E972AAF2ED0494100BF0844 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3ECDFFC12EC4874D00C3ADBE /* Project object */;
 }

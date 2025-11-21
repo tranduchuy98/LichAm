@@ -19,6 +19,7 @@ struct EventCreationView: View {
     
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
+    @State private var showLunarWarning: Bool = false // ✅ NEW: Cảnh báo âm lịch
     
     let editingEvent: LichAmEvent?
     let preselectedDate: Date
@@ -94,6 +95,12 @@ struct EventCreationView: View {
                         }
                     }
                     .tint(.red)
+                    .onChange(of: repeatType) { newValue in
+                        // ✅ NEW: Hiện cảnh báo khi chọn lunar repeat
+                        if (newValue == .lunarMonthly || newValue == .lunarYearly) && addToSystemCalendar {
+                            showLunarWarning = true
+                        }
+                    }
                 } header: {
                     Label("Thời gian", systemImage: "calendar")
                 }
@@ -131,6 +138,11 @@ struct EventCreationView: View {
                     }
                 } header: {
                     Label("Nhắc nhở", systemImage: "bell.fill")
+                } footer: {
+                    if hasReminder {
+                        Text("Nhắc nhở sẽ được gửi qua Thông báo và Calendar (nếu đã bật đồng bộ)")
+                            .font(.caption)
+                    }
                 }
                 
                 // Color Selection
@@ -168,6 +180,24 @@ struct EventCreationView: View {
                                 Text("Sự kiện sẽ xuất hiện trong app Lịch")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
+                            }
+                            
+                            // ✅ NEW: Cảnh báo cho lunar repeat
+                            if repeatType == .lunarMonthly || repeatType == .lunarYearly {
+                                HStack(alignment: .top, spacing: 8) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(.orange)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Lưu ý về lặp lại Âm lịch")
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.orange)
+                                        Text("Calendar hệ thống không hỗ trợ lặp lại theo Âm lịch. Chỉ sự kiện đầu tiên sẽ được thêm vào Calendar.")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .padding(.vertical, 8)
                             }
                         }
                     } header: {
@@ -207,6 +237,11 @@ struct EventCreationView: View {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(alertMessage)
+            }
+            .alert("Lưu ý về lặp lại Âm lịch", isPresented: $showLunarWarning) {
+                Button("Hiểu rồi", role: .cancel) {}
+            } message: {
+                Text("Calendar hệ thống không hỗ trợ lặp lại theo Âm lịch. Chỉ sự kiện đầu tiên sẽ được thêm vào Calendar. Tính năng lặp lại sẽ hoạt động trong app Lịch Âm.")
             }
         }
     }
@@ -277,21 +312,27 @@ struct EventCreationView: View {
         }
     }
     
+    // ✅ FIXED: Truyền đầy đủ parameters cho createEvent
     private func addToSystemCalendarAction(event: LichAmEvent, completion: @escaping (LichAmEvent) -> Void) {
         calendarIntegration.createEvent(
             title: "\(event.color.emoji) \(event.title)",
             date: event.startDate,
             notes: event.notes,
             isAllDay: event.isAllDay,
-            duration: event.endDate.timeIntervalSince(event.startDate)
+            duration: event.endDate.timeIntervalSince(event.startDate),
+            repeatType: event.repeatType, // ✅ FIXED: Thêm repeatType
+            reminderMinutes: event.reminderMinutesBefore // ✅ FIXED: Thêm reminder
         ) { success, eventIdentifier, error in
             var updatedEvent = event
             if success, let identifier = eventIdentifier {
                 // Store the actual EventKit identifier
                 updatedEvent.ekEventIdentifier = identifier
-                print("Event added to system calendar with ID: \(identifier)")
+                print("✅ Event added to system calendar with ID: \(identifier)")
+                if event.reminderMinutesBefore != nil {
+                    print("✅ Reminder set for \(event.reminderMinutesBefore!) minutes before")
+                }
             } else if let error = error {
-                print("Failed to add to system calendar: \(error.localizedDescription)")
+                print("❌ Failed to add to system calendar: \(error.localizedDescription)")
             }
             completion(updatedEvent)
         }

@@ -94,7 +94,11 @@ struct EventDetailView: View {
                     exportToCalendar()
                 }
             } message: {
-                Text("Thêm sự kiện này vào app Lịch của bạn?")
+                if let event = event, (event.repeatType == .lunarMonthly || event.repeatType == .lunarYearly) {
+                    Text("Lưu ý: Lặp lại theo Âm lịch không được Calendar hỗ trợ. Chỉ sự kiện đầu tiên sẽ được thêm.")
+                } else {
+                    Text("Thêm sự kiện này vào app Lịch của bạn?")
+                }
             }
         }
     }
@@ -296,6 +300,7 @@ struct EventDetailView: View {
         dismiss()
     }
     
+    // ✅ FIXED: Export với đầy đủ parameters
     private func exportToCalendar() {
         guard let event = event else { return }
         
@@ -310,16 +315,21 @@ struct EventDetailView: View {
             date: event.startDate,
             notes: event.notes,
             isAllDay: event.isAllDay,
-            duration: event.endDate.timeIntervalSince(event.startDate)
+            duration: event.endDate.timeIntervalSince(event.startDate),
+            repeatType: event.repeatType, // ✅ FIXED: Thêm repeatType
+            reminderMinutes: event.reminderMinutesBefore // ✅ FIXED: Thêm reminder
         ) { success, eventIdentifier, error in
             if success, let identifier = eventIdentifier {
                 // Update event with the actual EK identifier
                 var updatedEvent = event
                 updatedEvent.ekEventIdentifier = identifier
                 eventManager.updateEvent(updatedEvent)
-                print("Event exported to system calendar with ID: \(identifier)")
+                print("✅ Event exported to system calendar with ID: \(identifier)")
+                if event.reminderMinutesBefore != nil {
+                    print("✅ Reminder also exported")
+                }
             } else if let error = error {
-                print("Failed to export to system calendar: \(error.localizedDescription)")
+                print("❌ Failed to export to system calendar: \(error.localizedDescription)")
             }
         }
     }
